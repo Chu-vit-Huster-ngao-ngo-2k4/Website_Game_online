@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Người Dùng</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const token = localStorage.getItem("token"); // Lấy token từ localStorage
+            if (!token) {
+                alert("Bạn chưa đăng nhập!");
+                window.location.href = "login.html"; // Chuyển hướng nếu chưa login
+                return;
+            }
+
+            fetch("http://localhost:5000/api/auth/profile", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("username").innerText = data.username;
+                document.getElementById("email").innerText = data.email;
+                document.getElementById("role").innerText = data.role;
+            })
+            .catch(error => {
+                console.error("Lỗi khi lấy thông tin user:", error);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h2>Thông Tin Người Dùng</h2>
+    <p><strong>Username:</strong> <span id="username"></span></p>
+    <p><strong>Email:</strong> <span id="email"></span></p>
+    <p><strong>Vai trò:</strong> <span id="role"></span></p>
+    <button onclick="logout()">Đăng Xuất</button>
+
+    <script>
+        function logout() {
+            localStorage.removeItem("token"); // Xóa token khỏi localStorage
+            window.location.href = "login.html"; // Chuyển về trang login
+        }
+    </script>
+</body>
+</html>
