@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUST Online Games</title>
+    <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/main.css">
+
+</head>
+
+<body>
+    <header class="header">
+
+        <div class="logo">
+            <div class="menu-bar">
+                <!-- Them ca muc thuoc tinh nha! -->
+            </div>
+            <img src="../images/logo_Game_Web.png" alt="Logo" width="45px" height="45px">
+            <h3>HUST<br><span> Online Games</span></h3>
+        </div>
+
+        <div class="search-bar">
+            <input id="search-bar" type="text" placeholder="Tìm kiếm...">
+            <button>Tìm</button>
+        </div>
+
+        <div class="user-bar">
+            <div class="page_bar">
+                <a href="index.html">Trang Chủ</a>
+                <div id="nofication" style="display: none;" >Thông báo</div>
+            </div>
+            <div class="login_signup">
+                <button id="loginBtn" onclick="redirectToLogin()">Đăng Nhập</button>
+                <button id="signupBtn" onclick="redirectToSignup()" >Đăng Ký</button>
+            </div>
+            <div id="userSection" style="display: none;">
+                <p><strong>Xin chào:</strong> <span id="username"></span></p>
+                <button onclick="logout()">Đăng Xuất</button>
+            </div>
+            <button id="profile" style="display: none;" onclick="showProfile()">Profile</button>
+        </div>
+
+
+
+
+    </header>
+
+         
+
+    <!-- <div id="authSection">
+        <button id="loginBtn" onclick="redirectToLogin()">Đăng Nhập</button>
+        <div id="userSection" style="display: none;">
+            <p><strong>Xin chào:</strong> <span id="username"></span></p>
+            <button onclick="logout()">Đăng Xuất</button>
+        </div>
+
+        <button id="profile" onclick="showProfile()">Profile</button>
+    </div>
+     -->
+    <h1>Danh Sách Game</h1>
+    <div class="game-list" id="gameList"></div>
+
+
+    <!-- <h1>Danh sách Game Online</h1>
+    <div id="game-list"></div>
+
+    <script>
+        async function loadGames() {
+            const response = await fetch("http://localhost:5000/api/games");
+            const games = await response.json();
+
+            let html = "";
+            games.forEach(game => {
+                html += `
+                    <div>
+                        <h3>${game.title}</h3>
+                        <img src="${game.thumbnail}" width="200">
+                        <iframe src="${game.iframe_url}" width="800" height="600"></iframe>
+                    </div>
+                `;
+            });
+
+            document.getElementById("game-list").innerHTML = html;
+        }
+
+        loadGames();
+    </script> -->
+
+    <!-- <script>
+        const games = [
+            { id: 1, name: "Flappy Bird", image: "flappy.jpg", description: "Bay qua các chướng ngại vật!", url: "play.html?game=flappy" },
+            { id: 2, name: "2048", image: "2048.jpg", description: "Ghép số để đạt 2048!", url: "play.html?game=2048" },
+            { id: 3, name: "Pac-Man", image: "pacman.jpg", description: "Ăn điểm, tránh ma!", url: "play.html?game=pacman" }
+        ];
+
+        const gameListDiv = document.getElementById("gameList");
+
+        games.forEach(game => {
+            const gameCard = document.createElement("div");
+            gameCard.classList.add("game-card");
+
+            gameCard.innerHTML = `
+                <img src="${game.image}" alt="${game.name}">
+                <h3>${game.name}</h3>
+                <p>${game.description}</p>
+                <button class="play-btn" onclick="window.location.href='${game.url}'">Chơi Ngay</button>
+            `;
+
+            gameListDiv.appendChild(gameCard);
+        }); -->
+    </script>
+
+    <script src="./js/main.js"></script>
+</body>
+
+</html>

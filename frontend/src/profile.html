@@ -38,11 +38,15 @@
     <p><strong>Email:</strong> <span id="email"></span></p>
     <p><strong>Vai trò:</strong> <span id="role"></span></p>
     <button onclick="logout()">Đăng Xuất</button>
+    <button onclick="returnMain()">Trở về trang chủ</button>
 
     <script>
         function logout() {
             localStorage.removeItem("token"); // Xóa token khỏi localStorage
-            window.location.href = "login.html"; // Chuyển về trang login
+            window.location.href = "index.html"; // Chuyển về trang login
+        }
+        function returnMain() {
+            window.location.href = "index.html"; // Chuyển về trang login
         }
     </script>
 </body>

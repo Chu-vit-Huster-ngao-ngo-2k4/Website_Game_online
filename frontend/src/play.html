@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chơi Game</title>
+</head>
+<body>
+
+    <h1 id="gameTitle">Đang tải game...</h1>
+    <iframe id="gameFrame" width="800" height="600" frameborder="0"></iframe>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const game = params.get("game");
+
+        const gameData = {
+            flappy: { name: "Flappy Bird", url: "https://flappybird.io/" },
+            "2048": { name: "2048", url: "https://play2048.co/" },
+            pacman: { name: "Pac-Man", url: "https://www.google.com/logos/2010/pacman10-i.html" }
+        };
+
+        if (gameData[game]) {
+            document.getElementById("gameTitle").innerText = gameData[game].name;
+            document.getElementById("gameFrame").src = gameData[game].url;
+        } else {
+            document.getElementById("gameTitle").innerText = "Game không tồn tại!";
+        }
+    </script>
+
+</body>
+</html>
