@@ -4,35 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chơi Game</title>
+
+    <style>
+        .comment-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            margin-bottom: 10px;
+        }
+        .comment-time {
+            color: #666;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .comment-text {
+            margin-top: 5px;
+        }
+    </style>
+
 </head>
 <body>
 
     <h1 id="gameTitle">Đang tải game...</h1>
     <iframe id="gameFrame" width="400" height="600" frameborder="0"></iframe>
 
-
+    <div class="comment">
+        <h2>Bình luận</h2>
+        <div id="commentSection">
+            <input type="text" id="comment-input" placeholder="Nhập bình luận...">
+            <button onclick="postComment()">Gửi</button>
+        </div>
+        <div id="commentsList"></div>
+    </div>
 
     <script>
+        const params = new URLSearchParams(window.location.search);
+        const gameId = params.get("game");
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         async function loadGame() {
-            const params = new URLSearchParams(window.location.search);
-            const gameId = params.get("game");
+            if (!gameId) {
+                document.getElementById("gameTitle").innerText = "Game không hợp lệ!";
+                return;
+            }
 
-            const response = await fetch(`http://localhost:5000/api/games/get?id=${gameId}`);
-            if (!response.ok) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/games/get?id=${gameId}`);
+                if (!response.ok) throw new Error("Lỗi khi tải game");
+
+                const game = await response.json();
+                if (game) {
+                    document.getElementById("gameTitle").innerText = game.title;
+                    document.getElementById("gameFrame").src = game.iframe_url;
+                    
+                    if (gameId) {
+                        loadComments(gameId);
+                    }
+                } else {
+                    document.getElementById("gameTitle").innerText = "Game không tồn tại!";
+                }
+            } catch (error) {
+                console.error(error);
                 document.getElementById("gameTitle").innerText = "Lỗi khi tải game!";
-                return;
             }
-            if (response.status === 404) {
-                document.getElementById("gameTitle").innerText = "Game không tồn tại!";
-                return;
-            }
-            const game = await response.json();
+        }
 
-            if (game) {
-                document.getElementById("gameTitle").innerText = game.title;
-                document.getElementById("gameFrame").src = game.iframe_url;
-            } else {
-                document.getElementById("gameTitle").innerText = "Game không tồn tại!";
+        async function loadComments(gameId) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/comments/game/${gameId}`);
+                if (!response.ok) throw new Error("Lỗi khi tải bình luận");
+
+                const comments = await response.json();
+                let html = comments.map(comment =>
+                    `<div class="comment-item">
+                        <p><strong>${comment.User?.username || "Người dùng ẩn danh"}</strong> 
+                        <span class="comment-time">${formatDateTime(comment.createdAt)}</span></p>
+                        <p class="comment-text">${comment.comment}</p>
+                    </div>`
+                ).join("");
+                document.getElementById("commentsList").innerHTML = html;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function postComment() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Bạn cần đăng nhập để bình luận!");
+                return;
+            }
+
+            const commentText = document.getElementById("comment-input").value.trim();
+            if (!commentText) return;
+
+            try {
+                const userResponse = await fetch("http://localhost:5000/api/auth/profile", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (!userResponse.ok) {
+                    throw new Error("Lỗi khi lấy thông tin người dùng");
+                }
+
+                const userData = await userResponse.json();
+
+                const response = await fetch("http://localhost:5000/api/comments/add", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        game_id: parseInt(gameId, 10),
+                        user_id: userData.id,
+                        comment: commentText
+                    })
+                });
+
+                if (!response.ok) throw new Error("Lỗi khi gửi bình luận");
+
+                const newComment = await response.json();
+                const commentHTML = `
+                    <div class="comment-item">
+                        <p><strong>${userData.username}</strong> 
+                        <span class="comment-time">${formatDateTime(new Date())}</span></p>
+                        <p class="comment-text">${commentText}</p>
+                    </div>`;
+                
+                const commentsList = document.getElementById("commentsList");
+                commentsList.insertAdjacentHTML('afterbegin', commentHTML);
+
+                document.getElementById("comment-input").value = "";
+                loadComments(gameId);
+            } catch (error) {
+                console.error(error);
+                alert("Có lỗi xảy ra khi gửi bình luận");
             }
         }
 

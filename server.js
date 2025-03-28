@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./config/database");
+const authMiddleware = require("./middlewares/authMiddleware");
 
 
 const authRoutes = require("./routes/auth");
@@ -13,6 +14,10 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 
 app.use("/api/games", gamesRoutes);
+
+const commentRoutes = require("./routes/comments");
+app.use("/api/comments", authMiddleware, commentRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 
