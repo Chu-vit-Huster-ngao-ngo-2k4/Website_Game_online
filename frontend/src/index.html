@@ -51,35 +51,20 @@
 
          
 
-    <!-- <div id="authSection">
-        <button id="loginBtn" onclick="redirectToLogin()">Đăng Nhập</button>
-        <div id="userSection" style="display: none;">
-            <p><strong>Xin chào:</strong> <span id="username"></span></p>
-            <button onclick="logout()">Đăng Xuất</button>
-        </div>
 
-        <button id="profile" onclick="showProfile()">Profile</button>
-    </div>
-     -->
-    <h1>Danh Sách Game</h1>
-    <div class="game-list" id="gameList"></div>
-
-
-    <!-- <h1>Danh sách Game Online</h1>
+    <h1>Danh sách Game Online</h1>
     <div id="game-list"></div>
 
     <script>
         async function loadGames() {
-            const response = await fetch("http://localhost:5000/api/games");
+            const response = await fetch("http://localhost:5000/api/games/get");
             const games = await response.json();
 
             let html = "";
             games.forEach(game => {
                 html += `
-                    <div>
-                        <h3>${game.title}</h3>
+                    <div class="game-card" onclick="window.location.href='play.html?game=${game.id}'">
                         <img src="${game.thumbnail}" width="200">
-                        <iframe src="${game.iframe_url}" width="800" height="600"></iframe>
                     </div>
                 `;
             });
@@ -88,7 +73,7 @@
         }
 
         loadGames();
-    </script> -->
+    </script>
 
     <!-- <script>
         const games = [
