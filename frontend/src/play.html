@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,17 +12,20 @@
             padding: 10px 0;
             margin-bottom: 10px;
         }
+
         .comment-time {
             color: #666;
             font-size: 0.8em;
             margin-left: 10px;
         }
+
         .comment-text {
             margin-top: 5px;
         }
     </style>
 
 </head>
+
 <body>
 
     <h1 id="gameTitle">Đang tải game...</h1>
@@ -36,20 +40,53 @@
         <div id="commentsList"></div>
     </div>
 
+    <script type="module">
+        import { formatDateTime } from '../src/reuse_model/formatDateTime.js';
+        window.formatDateTime = formatDateTime; // Make it available globally
+    </script>
+
     <script>
+        
         const params = new URLSearchParams(window.location.search);
         const gameId = params.get("game");
 
-        function formatDateTime(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        
+
+        // Tạo lịch sử game 
+        async function addToHistory(gameData) {
+            try {
+                const maxHistoryItems = 5; // Số lượng game tối đa trong lịch sử
+                let gameHistory = JSON.parse(localStorage.getItem("gameHistory")) || [];
+
+                // Kiểm tra xem game đã tồn tại trong lịch sử chưa
+                const existingIndex = gameHistory.findIndex(item => item.id === gameData.id);
+                if (existingIndex !== -1) {
+                    // Nếu game đã tồn tại, xóa nó khỏi danh sách
+                    gameHistory.splice(existingIndex, 1);
+                }
+
+                // Thêm game mới vào đầu danh sách
+                gameHistory.unshift({
+                    id: gameData.id,
+                    title: gameData.title,
+                    thumbnail: gameData.thumbnail,
+                    played_at: new Date().toISOString()
+                });
+
+                // Giới hạn số lượng game trong lịch sử
+                if (gameHistory.length > maxHistoryItems) {
+                    gameHistory = gameHistory.slice(0, maxHistoryItems);
+                }
+
+                // Lưu lại lịch sử vào localStorage
+                localStorage.setItem("gameHistory", JSON.stringify(gameHistory));
+
+            } catch (error) {
+                console.error("Lỗi khi thêm game vào lịch sử:", error);
+            }
         }
+
+
 
         async function loadGame() {
             if (!gameId) {
@@ -65,7 +102,17 @@
                 if (game) {
                     document.getElementById("gameTitle").innerText = game.title;
                     document.getElementById("gameFrame").src = game.iframe_url;
-                    
+
+                    // Thêm game vào lịch sử khi load thành công
+                    const gameData = {
+                        id: game.id,
+                        title: game.title,
+                        thumbnail: game.thumbnail,
+                        played_at: new Date().toISOString()
+                    };
+                    console.log('Saving game to history:', gameData); // Thêm log để debug
+                    addToHistory(gameData);
+
                     if (gameId) {
                         loadComments(gameId);
                     }
@@ -80,14 +127,32 @@
 
         async function loadComments(gameId) {
             try {
-                const response = await fetch(`http://localhost:5000/api/comments/game/${gameId}`);
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    console.log("Chưa đăng nhập, không thể tải bình luận");
+                    return;
+                }
+
+
+                const response = await fetch(`http://localhost:5000/api/comments/game/${gameId}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    console.log("Token hết hạn hoặc không hợp lệ");
+                    localStorage.removeItem("token"); // Clear invalid token
+                    return;
+                }
+
                 if (!response.ok) throw new Error("Lỗi khi tải bình luận");
 
                 const comments = await response.json();
                 let html = comments.map(comment =>
                     `<div class="comment-item">
                         <p><strong>${comment.User?.username || "Người dùng ẩn danh"}</strong> 
-                        <span class="comment-time">${formatDateTime(comment.createdAt)}</span></p>
+                        <span class="comment-time">${formatDateTime(comment.created_at)}</span></p>
                         <p class="comment-text">${comment.comment}</p>
                     </div>`
                 ).join("");
@@ -101,7 +166,7 @@
             const token = localStorage.getItem("token");
             if (!token) {
                 alert("Bạn cần đăng nhập để bình luận!");
-                return;
+                window.location.href = "login.html";
             }
 
             const commentText = document.getElementById("comment-input").value.trim();
@@ -122,7 +187,7 @@
 
                 const response = await fetch("http://localhost:5000/api/comments/add", {
                     method: "POST",
-                    headers: { 
+                    headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
@@ -142,7 +207,7 @@
                         <span class="comment-time">${formatDateTime(new Date())}</span></p>
                         <p class="comment-text">${commentText}</p>
                     </div>`;
-                
+
                 const commentsList = document.getElementById("commentsList");
                 commentsList.insertAdjacentHTML('afterbegin', commentHTML);
 
@@ -155,7 +220,9 @@
         }
 
         loadGame();
+        loadComments(gameId);
     </script>
 
 </body>
+
 </html>

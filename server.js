@@ -19,8 +19,16 @@ const commentRoutes = require("./routes/comments");
 app.use("/api/comments", authMiddleware, commentRoutes);
 
 
+
 const PORT = process.env.PORT || 5000;
 
-sequelize.sync().then(() => {
+
+// Thêm options cho sequelize.sync()
+sequelize.sync({ 
+  force: false,
+  alter: false
+}).then(() => {
   app.listen(PORT, () => console.log(`🚀 Server chạy trên port ${PORT}`));
+}).catch(error => {
+  console.error('Lỗi khi sync database:', error);
 });
