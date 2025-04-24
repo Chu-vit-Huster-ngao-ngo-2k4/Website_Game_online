@@ -31,11 +31,11 @@
         <div class="user-bar">
             <div class="page_bar">
                 <a href="index.html">Trang Chủ</a>
-                <div id="nofication" style="display: none;" >Thông báo</div>
+                <div id="nofication" style="display: none;">Thông báo</div>
             </div>
             <div class="login_signup">
                 <button id="loginBtn" onclick="redirectToLogin()">Đăng Nhập</button>
-                <button id="signupBtn" onclick="redirectToSignup()" >Đăng Ký</button>
+                <button id="signupBtn" onclick="redirectToSignup()">Đăng Ký</button>
             </div>
             <div id="userSection" style="display: none;">
                 <p><strong>Xin chào:</strong> <span id="username"></span></p>
@@ -43,60 +43,115 @@
             </div>
             <button id="profile" style="display: none;" onclick="showProfile()">Profile</button>
         </div>
-
-
-
-
     </header>
 
-         
+
 
 
     <h1>Danh sách Game Online</h1>
     <div id="game-list"></div>
 
+
+    <div class="history-section">
+        <h2>Lịch sử chơi game</h2>
+        <button onclick="clearGameHistory()">Xóa lịch sử</button>
+        <div id="gameHistory"></div>
+    </div>
+
+    <script type="module">
+        import { formatDateTime } from '../src/reuse_model/formatDateTime.js';
+        window.formatDateTime = formatDateTime; // Make it available globally
+    </script>
+
+
     <script>
         async function loadGames() {
-            const response = await fetch("http://localhost:5000/api/games/get");
-            const games = await response.json();
+            try {
+                const response = await fetch("http://localhost:5000/api/games/get");
+                if (!response.ok) throw new Error("Lỗi khi tải game");
 
-            let html = "";
-            games.forEach(game => {
-                html += `
-                    <div class="game-card" onclick="window.location.href='play.html?game=${game.id}'">
-                        <img src="${game.thumbnail}" width="200">
-                    </div>
-                `;
-            });
+                const games = await response.json();
+                let html = "";
+                games.forEach(game => {
+                    html += `
+                <div class="game-card" onclick="window.location.href='play.html?game=${game.id}'">
+                    <img src="${game.thumbnail}" alt="${game.title}">
 
-            document.getElementById("game-list").innerHTML = html;
+                </div>
+            `;
+                });
+
+                document.getElementById("game-list").innerHTML = html;
+
+
+                // Lưu lịch sử chơi game vào localStorage khi người dùng click vào ga
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById("game-list").innerText = "Lỗi khi tải game!";
+            }
         }
 
         loadGames();
     </script>
 
-    <!-- <script>
-        const games = [
-            { id: 1, name: "Flappy Bird", image: "flappy.jpg", description: "Bay qua các chướng ngại vật!", url: "play.html?game=flappy" },
-            { id: 2, name: "2048", image: "2048.jpg", description: "Ghép số để đạt 2048!", url: "play.html?game=2048" },
-            { id: 3, name: "Pac-Man", image: "pacman.jpg", description: "Ăn điểm, tránh ma!", url: "play.html?game=pacman" }
-        ];
+    <script>
 
-        const gameListDiv = document.getElementById("gameList");
+function formatDateTime(dateString) {
+    if (!dateString) return 'Không có ngày';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Ngày không hợp lệ';
+    
+    return date.toLocaleString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+        // Thêm hàm hiển thị lịch sử game
+        function displayGameHistory() {
 
-        games.forEach(game => {
-            const gameCard = document.createElement("div");
-            gameCard.classList.add("game-card");
+            try {
+                const gameHistory = JSON.parse(localStorage.getItem('gameHistory') || '[]');
+                console.log('Game History:', gameHistory);
 
-            gameCard.innerHTML = `
-                <img src="${game.image}" alt="${game.name}">
-                <h3>${game.name}</h3>
-                <p>${game.description}</p>
-                <button class="play-btn" onclick="window.location.href='${game.url}'">Chơi Ngay</button>
-            `;
+                if (!gameHistory || gameHistory.length === 0) {
+                    document.getElementById('gameHistory').innerHTML = '<p>Chưa có lịch sử chơi game</p>';
+                    return;
+                }
 
-            gameListDiv.appendChild(gameCard);
-        }); -->
+
+                const historyHTML = gameHistory.map(game => `
+            <div class="history-item" onclick="window.location.href='play.html?game=${game.id}'">
+                <img src="${game.thumbnail}" alt="${game.title}" class="history-thumbnail">
+                <div class="history-info">
+                    <div class="game-title">${game.title}</div>
+                    <div class="history-time">Chơi lần cuối: ${formatDateTime(game.played_at)}</div>
+                </div>
+            </div>
+        `).join('');
+
+                document.getElementById('gameHistory').innerHTML = historyHTML;
+            } catch (error) {
+                console.error('Lỗi khi hiển thị lịch sử:', error);
+                document.getElementById('gameHistory').innerHTML = '<p>Lỗi khi tải lịch sử game</p>';
+            }
+        }
+
+        // Gọi hàm khi trang được tải
+        window.addEventListener('load', displayGameHistory);
+    </script>
+
+    <script>
+        // Thêm hàm xóa lịch sử
+        function clearGameHistory() {
+            if (confirm('Bạn có chắc muốn xóa toàn bộ lịch sử chơi game?')) {
+                localStorage.removeItem('gameHistory');
+                displayGameHistory();
+            }
+        }
     </script>
 
     <script src="./js/main.js"></script>

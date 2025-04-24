@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./config/database");
+const authMiddleware = require("./middlewares/authMiddleware");
 
 
 const authRoutes = require("./routes/auth");
@@ -14,8 +15,20 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/games", gamesRoutes);
 
+const commentRoutes = require("./routes/comments");
+app.use("/api/comments", authMiddleware, commentRoutes);
+
+
+
 const PORT = process.env.PORT || 5000;
 
-sequelize.sync().then(() => {
+
+// Thêm options cho sequelize.sync()
+sequelize.sync({ 
+  force: false,
+  alter: false
+}).then(() => {
   app.listen(PORT, () => console.log(`🚀 Server chạy trên port ${PORT}`));
+}).catch(error => {
+  console.error('Lỗi khi sync database:', error);
 });
