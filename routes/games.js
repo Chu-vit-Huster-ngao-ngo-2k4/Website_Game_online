@@ -1,8 +1,25 @@
 const express = require("express");
 const router = express.Router();
 const Game = require("../models/Game");
+const adminMiddleware = require("../middlewares/adminMiddleware");
 
-router.post("/add", async (req, res) => {
+router.get("/", async (req, res) => {
+    try{
+        const gameId = req.query.id;
+        if(gameId == null){
+            const games = await Game.findAll();
+            res.json(games);
+        }else{
+            const game = await Game.findOne({ where: { id: gameId } });
+            res.json(game);
+        }
+    } catch (error) {
+        console.error("Lỗi khi lấy danh sách game:", error);
+        res.status(500).json({ error: "Không thể lấy danh sách game!" });
+    }
+});
+
+router.post("/add", adminMiddleware, async (req, res) => {
     try {
         const { title, iframe_url, thumbnail } = req.body;
         const newGame = await Game.create({
@@ -42,5 +59,21 @@ router.get("/get", async (req, res) => {
     }
 });
 
+router.get("/delete/:id", adminMiddleware, async (req, res) => {
+    try {
+        const gameId = req.params.id;
+        const game = await Game.findByPk(gameId);
+
+        if (!game) {
+            return res.status(404).json({ error: "Game không tồn tại!" });
+        }
+
+        await game.destroy();
+        res.json({ message: "Xóa game thành công!" });
+    } catch (error) {
+        console.error("Lỗi khi xóa game:", error);
+        res.status(500).json({ error: "Không thể xóa game!" });
+    }
+});
 
 module.exports = router;

@@ -9,75 +9,278 @@
 
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('../assets/hero-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
 
+        .hero-content {
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-card {
+            background: #1F2030;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid #333;
+        }
+
+        .game-card-content {
+            padding: 20px;
+        }
+
+        .game-card h3 {
+            margin: 0 0 10px 0;
+            color: #fff;
+            font-size: 1.4em;
+        }
+
+        .game-card p {
+            color: #ccc;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .play-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .play-btn:hover {
+            background: #45a049;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: white;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .message.info { background: #2196F3; }
+        .message.success { background: #4CAF50; }
+        .message.error { background: #f44336; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section-header h2 {
+            color: #fff;
+            font-size: 2em;
+            margin: 0;
+        }
+
+        .games-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .no-games {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            background: #1F2030;
+            border-radius: 10px;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .games-list {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                padding: 10px;
+            }
+
+            .game-card img {
+                height: 150px;
+            }
+
+            .game-card-content {
+                padding: 15px;
+            }
+
+            .game-card h3 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <header class="header">
-
-        <div class="logo">
-            <div class="menu-bar">
-                <!-- Them ca muc thuoc tinh nha! -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html">HUST Games</a>
             </div>
-            <img src="../images/logo_Game_Web.png" alt="Logo" width="45px" height="45px">
-            <h3>HUST<br><span> Online Games</span></h3>
+        <div class="nav-links">
+            <a href="index.html" class="active">Trang chủ</a>
+            <a href="play.html" class="guest-link">Chơi game</a>
+            <a href="profile.html" class="auth-link" style="display: none;">Tài khoản</a>
+            <a href="admin.html" class="admin-link" style="display: none;">Quản trị</a>
+            <a href="login.html" class="guest-link">Đăng nhập</a>
+            <a href="register.html" class="guest-link">Đăng ký</a>
+            <a href="#" class="auth-link" style="display: none;" id="logoutBtn">Đăng xuất</a>
         </div>
+    </nav>
 
-        <div class="search-bar">
-            <input id="search-bar" type="text" placeholder="Tìm kiếm...">
-            <button>Tìm</button>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Chào mừng đến với HUST Online Games</h1>
+            <p>Khám phá thế giới game đa dạng và thú vị</p>
+            <a href="play.html" class="play-btn">Bắt đầu chơi ngay</a>
         </div>
+    </section>
 
-        <div class="user-bar">
-            <div class="page_bar">
-                <a href="index.html">Trang Chủ</a>
-                <div id="nofication" style="display: none;" >Thông báo</div>
+    <section class="games-grid" id="gamesGrid">
+        <div class="section-header">
+            <h2>Danh sách game</h2>
             </div>
-            <div class="login_signup">
-                <button id="loginBtn" onclick="redirectToLogin()">Đăng Nhập</button>
-                <button id="signupBtn" onclick="redirectToSignup()" >Đăng Ký</button>
-            </div>
-            <div id="userSection" style="display: none;">
-                <p><strong>Xin chào:</strong> <span id="username"></span></p>
-                <button onclick="logout()">Đăng Xuất</button>
-            </div>
-            <button id="profile" style="display: none;" onclick="showProfile()">Profile</button>
+        <div class="games-list">
+            <!-- Games will be loaded here -->
         </div>
+    </section>
 
+    <script type="module">
+        import { games } from './js/modules/games.js';
+        import { auth } from './js/modules/auth.js';
+        import { ui } from './js/modules/ui.js';
 
+        // Update navigation based on auth status
+        ui.updateNavigation();
 
+        // Handle logout
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.logout();
+        });
 
-    </header>
-
-         
-
-
-    <h1>Danh sách Game Online</h1>
-    <div id="game-list"></div>
-
-    <script>
+        // Load games
         async function loadGames() {
-            const response = await fetch("http://localhost:5000/api/games/get");
-            const games = await response.json();
+            try {
+                ui.showLoading();
+                const gamesList = await games.getAllGames();
+                const gamesListElement = document.querySelector('.games-list');
+                
+                if (gamesList.length === 0) {
+                    gamesListElement.innerHTML = `
+                        <div class="no-games">
+                            <p>Chưa có game nào được thêm vào hệ thống.</p>
+                        </div>
+                    `;
+                    return;
+                }
 
-            let html = "";
-            games.forEach(game => {
-                html += `
-                    <div class="game-card" onclick="window.location.href='play.html?game=${game.id}'">
-                        <img src="${game.thumbnail}" width="200">
+                gamesListElement.innerHTML = gamesList.map(game => `
+                    <div class="game-card">
+                        <img src="${game.imageUrl}" alt="${game.name}" onerror="this.src='../assets/default-game.jpg'">
+                        <div class="game-card-content">
+                            <h3>${game.name}</h3>
+                            <p>${game.description}</p>
+                            <a href="play.html?game=${game.id}" class="play-btn">Chơi ngay</a>
+                        </div>
                     </div>
-                `;
-            });
-
-            document.getElementById("game-list").innerHTML = html;
+                `).join('');
+            } catch (error) {
+                console.error('Error loading games:', error);
+                ui.showMessage('Không thể tải danh sách game', 'error');
+            } finally {
+                ui.hideLoading();
+            }
         }
 
         loadGames();
     </script>
-
-
-
-    <script src="./js/main.js"></script>
 </body>
 
 </html>

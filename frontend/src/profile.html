@@ -3,51 +3,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông Tin Người Dùng</title>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const token = localStorage.getItem("token"); // Lấy token từ localStorage
-            if (!token) {
-                alert("Bạn chưa đăng nhập!");
-                window.location.href = "login.html"; // Chuyển hướng nếu chưa login
+    <title>Tài khoản - HUST Online Games</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            background: #1F2030;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: white;
+            margin-right: 30px;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h1 {
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+
+        .profile-info p {
+            color: #ccc;
+            margin: 0;
+        }
+
+        .profile-section {
+            background: #1F2030;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .profile-section h2 {
+            margin: 0 0 20px 0;
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #2a2a3a;
+            color: white;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: white;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .message.info { background: #2196F3; }
+        .message.success { background: #4CAF50; }
+        .message.error { background: #f44336; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html">HUST Games</a>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Trang chủ</a>
+            <a href="play.html">Chơi game</a>
+            <a href="profile.html" class="active auth-link" style="display: none;">Tài khoản</a>
+            <a href="admin.html" class="admin-link" style="display: none;">Quản trị</a>
+            <a href="login.html" class="guest-link">Đăng nhập</a>
+            <a href="register.html" class="guest-link">Đăng ký</a>
+            <a href="#" class="auth-link" style="display: none;" id="logoutBtn">Đăng xuất</a>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar" id="userAvatar">
+                <!-- Initial will be set by JavaScript -->
+            </div>
+            <div class="profile-info">
+                <h1 id="userName">Loading...</h1>
+                <p id="userEmail">Loading...</p>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2>Thông tin tài khoản</h2>
+            <form id="updateProfileForm">
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Cập nhật thông tin</button>
+            </form>
+        </div>
+
+        <div class="profile-section">
+            <h2>Đổi mật khẩu</h2>
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label for="currentPassword">Mật khẩu hiện tại</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Mật khẩu mới</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Xác nhận mật khẩu mới</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+            </form>
+        </div>
+
+        <div class="profile-section">
+            <h2>Xóa tài khoản</h2>
+            <p style="color: #ccc; margin-bottom: 20px;">Cảnh báo: Hành động này không thể hoàn tác. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn.</p>
+            <button id="deleteAccountBtn" class="btn btn-danger">Xóa tài khoản</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from './js/modules/auth.js';
+        import { ui } from './js/modules/ui.js';
+
+        // Check if user is logged in
+        if (!auth.checkAuth()) {
+            window.location.href = 'login.html';
+        }
+
+        // Update navigation based on auth status
+        ui.updateNavigation();
+
+        // Handle logout
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.logout();
+        });
+
+        // Load user data
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        document.getElementById('userName').textContent = user.username || 'Loading...';
+        document.getElementById('userEmail').textContent = user.email || 'Loading...';
+        document.getElementById('userAvatar').textContent = (user.username || '?')[0].toUpperCase();
+        
+        // Set form values
+        document.getElementById('username').value = user.username || '';
+        document.getElementById('email').value = user.email || '';
+
+        // Update profile
+        document.getElementById('updateProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                ui.showLoading();
+                const response = await fetch('http://localhost:5000/api/users/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        email: document.getElementById('email').value
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('user', JSON.stringify(data));
+                    ui.showMessage('Cập nhật thông tin thành công', 'success');
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    ui.showMessage(error.message || 'Cập nhật thất bại', 'error');
+                }
+            } catch (error) {
+                ui.showMessage('Lỗi kết nối server', 'error');
+            } finally {
+                ui.hideLoading();
+            }
+        });
+
+        // Change password
+        document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                ui.showMessage('Mật khẩu mới không khớp', 'error');
                 return;
             }
 
-            fetch("http://localhost:5000/api/auth/profile", {
-                method: "GET",
+            try {
+                ui.showLoading();
+                const response = await fetch('http://localhost:5000/api/users/change-password', {
+                    method: 'PUT',
                 headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("username").innerText = data.username;
-                document.getElementById("email").innerText = data.email;
-                document.getElementById("role").innerText = data.role;
-            })
-            .catch(error => {
-                console.error("Lỗi khi lấy thông tin user:", error);
-            });
-        });
-    </script>
-</head>
-<body>
-    <h2>Thông Tin Người Dùng</h2>
-    <p><strong>Username:</strong> <span id="username"></span></p>
-    <p><strong>Email:</strong> <span id="email"></span></p>
-    <p><strong>Vai trò:</strong> <span id="role"></span></p>
-    <button onclick="logout()">Đăng Xuất</button>
-    <button onclick="returnMain()">Trở về trang chủ</button>
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword: document.getElementById('currentPassword').value,
+                        newPassword
+                    })
+                });
 
-    <script>
-        function logout() {
-            localStorage.removeItem("token"); // Xóa token khỏi localStorage
-            window.location.href = "index.html"; // Chuyển về trang login
-        }
-        function returnMain() {
-            window.location.href = "index.html"; // Chuyển về trang login
-        }
+                if (response.ok) {
+                    ui.showMessage('Đổi mật khẩu thành công', 'success');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    const error = await response.json();
+                    ui.showMessage(error.message || 'Đổi mật khẩu thất bại', 'error');
+                }
+            } catch (error) {
+                ui.showMessage('Lỗi kết nối server', 'error');
+            } finally {
+                ui.hideLoading();
+            }
+        });
+
+        // Delete account
+        document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+            if (!confirm('Bạn có chắc chắn muốn xóa tài khoản? Hành động này không thể hoàn tác.')) {
+                return;
+            }
+
+            try {
+                ui.showLoading();
+                const response = await fetch('http://localhost:5000/api/users/delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    ui.showMessage('Xóa tài khoản thành công', 'success');
+                    setTimeout(() => {
+                        auth.logout();
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    ui.showMessage(error.message || 'Xóa tài khoản thất bại', 'error');
+                }
+            } catch (error) {
+                ui.showMessage('Lỗi kết nối server', 'error');
+            } finally {
+                ui.hideLoading();
+            }
+        });
     </script>
 </body>
 </html>
