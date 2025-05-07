@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tài khoản - HUST Online Games</title>
+
+    <div id="header"></div>
+    <script>
+        fetch('reuse_model/head.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('header').innerHTML = html;
+            });
+    </script>
+
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/main.css">
     <style>
@@ -155,7 +165,9 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
+
+    
+    <!-- <nav class="navbar">
         <div class="nav-brand">
             <a href="index.html">HUST Games</a>
         </div>
@@ -168,7 +180,7 @@
             <a href="register.html" class="guest-link">Đăng ký</a>
             <a href="#" class="auth-link" style="display: none;" id="logoutBtn">Đăng xuất</a>
         </div>
-    </nav>
+    </nav> -->
 
     <div class="profile-container">
         <div class="profile-header">

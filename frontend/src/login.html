@@ -1,107 +1,111 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Nhập</title>
+    <title>Login</title>
     <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../css/main.css">
-    <style>
-        .login-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #1F2030;
-            border-radius: 8px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #333;
-            background: #2a2a3a;
-            color: white;
-        }
-        .submit-btn {
-            width: 100%;
-            padding: 10px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .error-message {
-            color: #ff4444;
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/login.css">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Đăng Nhập</h2>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Tên đăng nhập:</label>
-                <input type="text" id="username" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email đăng nhập:</label>
-                <input type="email" id="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Mật khẩu:</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit" class="submit-btn">Đăng Nhập</button>
-        </form>
-        <p id="errorMessage" class="error-message"></p>
-    </div>
+    <div id="header"></div>
+    <main>
+        <div class="login-container">
+            <h1>Welcome Back</h1>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="submit-btn">Sign In</button>
+                <div class="error-message"></div>
+            </form>
+            <p class="register-link">
+                Don't have an account? <a href="register.html">Register here</a>
+            </p>
+        </div>
+    </main>
+    <div id="footer"></div>
 
-    <script>
-        document.getElementById("loginForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
+    <script type="module">
+        import { auth } from './js/modules/auth.js';
+        import { ui } from './js/modules/ui.js';
+
+        // Load header and footer
+        fetch('./reuse_model/head.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Update navigation after header is loaded
+                ui.updateNavigation();
+                
+                // Add logout event listener after header is loaded
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        auth.logout();
+                    });
+                }
+            });
+
+        fetch('./reuse_model/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer').innerHTML = data;
+            });
+
+        // Handle login form submission
+        const loginForm = document.getElementById('login-form');
+        const submitBtn = loginForm.querySelector('.submit-btn');
+        const errorMessage = loginForm.querySelector('.error-message');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            const username = document.getElementById("username").value;
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const errorMessage = document.getElementById("errorMessage");
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            errorMessage.textContent = '';
 
             try {
-                const response = await fetch("http://localhost:5000/api/auth/login", {
-                    method: "POST",
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
                     headers: {
-                        "Content-Type": "application/json"
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ username, email, password })
+                    body: JSON.stringify({ username, password })
                 });
 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    // Lưu token và thông tin user
-                    localStorage.setItem("token", data.token);
-                    localStorage.setItem("user", JSON.stringify(data.user));
+                    // Save token and user info
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
 
-                    // Chuyển hướng dựa vào role
-                    if (data.user.role === 'admin') {
-                        window.location.href = "admin.html";
-                    } else {
-                        window.location.href = "index.html";
-                    }
+                    ui.showMessage('Login successful!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
                 } else {
-                    errorMessage.textContent = data.error || "Đăng nhập thất bại!";
+                    errorMessage.textContent = data.error || 'Invalid username or password';
                 }
             } catch (error) {
-                console.error("Lỗi khi đăng nhập:", error);
-                errorMessage.textContent = "Lỗi kết nối server!";
+                console.error('Login error:', error);
+                errorMessage.textContent = 'Server connection error!';
+            } finally {
+                // Remove loading state
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
             }
         });
     </script>

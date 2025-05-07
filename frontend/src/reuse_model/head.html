@@ -3,3 +3,137 @@
 
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/main.css">
+
+<nav class="navbar">
+    <div class="nav-brand">
+        <a href="index.html"><img src="../images/logo_Game_Web.png" alt="HUST Games" style="width: 50px; height: 50px;">HUSTOnGame</a>
+    </div>
+    <div class="nav-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="play.html">Chơi game</a>
+        <a href="profile.html" class="auth-link" style="display: none;">Tài khoản</a>
+        <a href="admin.html" class="admin-link" style="display: none;">Quản trị</a>
+        <a href="login.html" class="guest-link">Đăng nhập</a>
+        <a href="register.html" class="guest-link">Đăng ký</a>
+        <a href="#" class="auth-link" style="display: none;" id="logoutBtn">Đăng xuất</a>
+    </div>
+</nav>
+
+<style>
+    .navbar {
+        background: #1F2030;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .nav-brand a {
+        color: #fff;
+        font-size: 24px;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .nav-links a {
+        color: #ccc;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.1);
+    }
+
+    .nav-links a.active {
+        color: #4CAF50;
+        background: rgba(76,175,80,0.1);
+    }
+
+    .nav-links .auth-link,
+    .nav-links .admin-link {
+        color: #4CAF50;
+    }
+
+    .nav-links .auth-link:hover,
+    .nav-links .admin-link:hover {
+        background: rgba(76,175,80,0.2);
+    }
+
+    #logoutBtn {
+        color: #f44336;
+    }
+
+    #logoutBtn:hover {
+        background: rgba(244,67,54,0.1);
+    }
+</style>
+
+<script type="module">
+    import { auth } from '../js/modules/auth.js';
+    import { ui } from '../js/modules/ui.js';
+
+    // Update navigation based on auth status
+    function updateNavigation() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        // Update auth links visibility
+        document.querySelectorAll('.auth-link').forEach(link => {
+            link.style.display = token ? 'block' : 'none';
+        });
+        
+        // Update guest links visibility
+        document.querySelectorAll('.guest-link').forEach(link => {
+            link.style.display = token ? 'none' : 'block';
+        });
+        
+        // Update admin link visibility
+        document.querySelectorAll('.admin-link').forEach(link => {
+            link.style.display = (user.role === 'admin') ? 'block' : 'none';
+        });
+    }
+
+    // Set active link based on current page
+    function setActiveLink() {
+        const currentPage = window.location.pathname.split('/').pop();
+        const links = document.querySelectorAll('.nav-links a');
+        links.forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    // Handle logout
+    function setupLogout() {
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.logout();
+            });
+        }
+    }
+
+    // Initialize navigation
+    document.addEventListener('DOMContentLoaded', () => {
+        updateNavigation();
+        setActiveLink();
+        setupLogout();
+    });
+
+    // Export functions for other modules to use
+    window.updateNavigation = updateNavigation;
+</script>
+

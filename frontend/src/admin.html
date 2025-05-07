@@ -90,6 +90,15 @@
     </style>
 </head>
 <body>
+    <div id="header"></div>
+<script>
+    fetch('reuse_model/head.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('header').innerHTML = html;
+        });
+</script>
+
     <header class="header">
         <div class="logo">
             <div class="menu-bar"></div>
@@ -103,7 +112,7 @@
             </div>
             <div id="userSection">
                 <p><strong>Admin:</strong> <span id="username"></span></p>
-                <button onclick="logout()">Đăng Xuất</button>
+                <button id="logoutBtn">Đăng Xuất</button>
             </div>
         </div>
     </header>
@@ -138,121 +147,141 @@
         </div>
     </div>
 
-    <script>
-        // Kiểm tra quyền admin
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        
-        if (!token || user.role !== 'admin') {
-            alert('Bạn không có quyền truy cập trang admin!');
-            window.location.href = 'index.html';
-        }
+    <script type="module">
+        import { auth } from './js/modules/auth.js';
+        import { ui } from './js/modules/ui.js';
+        import { games } from './js/modules/games.js';
 
-        // Hiển thị tên admin
-        document.getElementById('username').textContent = user.username;
-
-        // Hiển thị form thêm game
-        function showAddGameForm() {
-            const form = document.getElementById('addGameForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Load danh sách game
-        async function loadGames() {
-            try {
-                const response = await fetch('http://localhost:5000/api/games', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const games = await response.json();
-                
-                const gameList = document.getElementById('gameList');
-                gameList.innerHTML = games.map(game => `
-                    <div class="game-card">
-                        <img src="${game.thumbnail}" alt="${game.title}">
-                        <h3>${game.title}</h3>
-                        <div class="game-actions">
-                            <button class="edit-btn" onclick="editGame(${game.id})">Sửa</button>
-                            <button class="delete-btn" onclick="deleteGame(${game.id})">Xóa</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Lỗi khi tải danh sách game:', error);
-                if (error.status === 403) {
-                    alert('Bạn không có quyền truy cập trang admin!');
-                    window.location.href = 'index.html';
-                }
-            }
-        }
-
-        // Thêm game mới
-        document.getElementById('newGameForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Đợi DOM load xong
+        document.addEventListener('DOMContentLoaded', () => {
+            // Kiểm tra quyền admin
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
             
-            const gameData = {
-                title: document.getElementById('title').value,
-                iframe_url: document.getElementById('iframe_url').value,
-                thumbnail: document.getElementById('thumbnail').value
-            };
-
-            try {
-                const response = await fetch('http://localhost:5000/api/games/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(gameData)
-                });
-
-                if (response.ok) {
-                    alert('Thêm game thành công!');
-                    document.getElementById('newGameForm').reset();
-                    showAddGameForm();
-                    loadGames();
-                } else {
-                    const data = await response.json();
-                    alert(data.error || 'Lỗi khi thêm game!');
-                }
-            } catch (error) {
-                console.error('Lỗi khi thêm game:', error);
-                alert('Lỗi khi thêm game!');
+            if (!token || user.role !== 'admin') {
+                alert('Bạn không có quyền truy cập trang admin!');
+                window.location.href = 'index.html';
+                return;
             }
-        });
 
-        // Xóa game
-        async function deleteGame(id) {
-            if (!confirm('Bạn có chắc muốn xóa game này?')) return;
+            // Hiển thị tên admin
+            document.getElementById('username').textContent = user.username;
 
-            try {
-                const response = await fetch(`http://localhost:5000/api/games/delete/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+            // Handle logout
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    auth.logout();
+                });
+            }
+
+            // Hiển thị form thêm game
+            window.showAddGameForm = function() {
+                const form = document.getElementById('addGameForm');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            }
+
+            // Load danh sách game
+            async function loadGames() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/games', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    const games = await response.json();
+                    
+                    const gameList = document.getElementById('gameList');
+                    gameList.innerHTML = games.map(game => `
+                        <div class="game-card">
+                            <img src="${game.thumbnail}" alt="${game.title}">
+                            <h3>${game.title}</h3>
+                            <div class="game-actions">
+                                <button class="edit-btn" onclick="editGame(${game.id})">Sửa</button>
+                                <button class="delete-btn" onclick="deleteGame(${game.id})">Xóa</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Lỗi khi tải danh sách game:', error);
+                    if (error.status === 403) {
+                        alert('Bạn không có quyền truy cập trang admin!');
+                        window.location.href = 'index.html';
+                    }
+                }
+            }
+
+            // Thêm game mới
+            const newGameForm = document.getElementById('newGameForm');
+            if (newGameForm) {
+                newGameForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const gameData = {
+                        title: document.getElementById('title').value,
+                        iframe_url: document.getElementById('iframe_url').value,
+                        thumbnail: document.getElementById('thumbnail').value
+                    };
+
+                    try {
+                        const response = await fetch('http://localhost:5000/api/games/add', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(gameData)
+                        });
+
+                        if (response.ok) {
+                            alert('Thêm game thành công!');
+                            document.getElementById('newGameForm').reset();
+                            showAddGameForm();
+                            loadGames();
+                        } else {
+                            const data = await response.json();
+                            alert(data.error || 'Lỗi khi thêm game!');
+                        }
+                    } catch (error) {
+                        console.error('Lỗi khi thêm game:', error);
+                        alert('Lỗi khi thêm game!');
                     }
                 });
-                if (response.ok) {
-                    alert('Xóa game thành công!');
-                    loadGames();
-                } else {
-                    const data = await response.json();
-                    alert(data.error || 'Lỗi khi xóa game!');
-                }
-            } catch (error) {
-                console.error('Lỗi khi xóa game:', error);
-                alert('Lỗi khi xóa game!');
             }
-        }
 
-        // Sửa game
-        function editGame(id) {
-            // TODO: Implement edit functionality
-            alert('Tính năng đang được phát triển!');
-        }
+            // Xóa game
+            window.deleteGame = async function(id) {
+                if (!confirm('Bạn có chắc muốn xóa game này?')) return;
 
-        // Load games khi trang được tải
-        loadGames();
+                try {
+                    const response = await fetch(`http://localhost:5000/api/games/delete/${id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (response.ok) {
+                        alert('Xóa game thành công!');
+                        loadGames();
+                    } else {
+                        const data = await response.json();
+                        alert(data.error || 'Lỗi khi xóa game!');
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi xóa game:', error);
+                    alert('Lỗi khi xóa game!');
+                }
+            }
+
+            // Sửa game
+            window.editGame = function(id) {
+                // TODO: Implement edit functionality
+                alert('Tính năng đang được phát triển!');
+            }
+
+            // Load games khi trang được tải
+            loadGames();
+        });
     </script>
 </body>
 </html> 
