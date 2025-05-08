@@ -6,14 +6,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Website</title>
     <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+    
+    <style>
+        /* Critical CSS to prevent FOUC */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1F2030;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.3s ease-in;
+        }
+
+        body.loaded {
+            opacity: 1;
+        }
+
+        /* Loading screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1F2030;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease-out;
+        }
+
+        #loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #4CAF50;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hide content until loaded */
+        #header, main, #footer {
+            opacity: 0;
+            transition: opacity 0.3s ease-in;
+        }
+
+        #header.loaded, main.loaded, #footer.loaded {
+            opacity: 1;
+        }
+    </style>
+
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/common.css">
     <link rel="stylesheet" href="../css/index.css">
-    <div id="header"></div>
 </head>
 
 <body>
+    <!-- Loading screen -->
+    <div id="loading-screen">
+        <div class="loading-spinner"></div>
+    </div>
 
+    <div id="header"></div>
     <main>
         <section class="hero">
             <div class="hero-content">
@@ -40,11 +106,19 @@
         import { auth } from './js/modules/auth.js';
         import { ui } from './js/modules/ui.js';
 
-        // Load header and footer
-        fetch('./reuse_model/head.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('header').innerHTML = data;
+        // Load header and footer first
+        async function loadComponents() {
+            try {
+                // Load header
+                const headerResponse = await fetch('./reuse_model/head.html');
+                const headerHtml = await headerResponse.text();
+                document.getElementById('header').innerHTML = headerHtml;
+                
+                // Load footer
+                const footerResponse = await fetch('./reuse_model/footer.html');
+                const footerHtml = await footerResponse.text();
+                document.getElementById('footer').innerHTML = footerHtml;
+
                 // Update navigation after header is loaded
                 ui.updateNavigation();
                 
@@ -56,13 +130,26 @@
                         auth.logout();
                     });
                 }
-            });
 
-        fetch('./reuse_model/footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer').innerHTML = data;
-            });
+                // Show content when components are loaded
+                document.body.classList.add('loaded');
+                document.getElementById('header').classList.add('loaded');
+                document.querySelector('main').classList.add('loaded');
+                document.getElementById('footer').classList.add('loaded');
+                
+                // Hide loading screen
+                const loadingScreen = document.getElementById('loading-screen');
+                loadingScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 300);
+            } catch (error) {
+                console.error('Error loading components:', error);
+            }
+        }
+
+        // Start loading components
+        loadComponents();
 
         // Load games
         async function loadGames() {

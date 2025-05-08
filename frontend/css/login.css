@@ -53,6 +53,10 @@
     transition: all 0.3s ease;
 }
 
+.form-group input[type="email"] {
+    font-family: inherit;
+}
+
 .form-group input:focus {
     border-color: #4CAF50;
     outline: none;
