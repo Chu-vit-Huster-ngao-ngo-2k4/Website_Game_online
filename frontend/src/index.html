@@ -66,6 +66,197 @@
         #header.loaded, main.loaded, #footer.loaded {
             opacity: 1;
         }
+
+        /* Game list styles */
+        .game-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-top: 45px;
+        }
+
+        .game-item {
+            background: #1F2030;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid #2a2a3a;
+        }
+
+        .game-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-color: #4CAF50;
+        }
+
+        .game-thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-bottom: 2px solid #4CAF50;
+            background-color: #2a2a3a;
+        }
+
+        .game-info {
+            padding: 12px;
+        }
+
+        .game-title {
+            color: #fff;
+            font-size: 1em;
+            margin: 0 0 6px 0;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .game-category {
+            color: #4CAF50;
+            font-size: 0.85em;
+            text-transform: capitalize;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .game-item:hover .game-overlay {
+            opacity: 1;
+        }
+
+        .play-button {
+            background: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .play-button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        /* No games message */
+        .no-games {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            background: #2a2a3a;
+            border-radius: 12px;
+            color: #888;
+        }
+
+        /* Category filter */
+        .category-filter {
+            position: fixed;
+            left: 0;
+            top: 80px;
+            height: calc(100vh - 80px);
+            background: #1F2030;
+            padding: 20px;
+            border-right: 1px solid #2a2a3a;
+            z-index: 5;
+            width: 150px;
+            overflow-y: auto;
+        }
+
+        /* Custom scrollbar for category filter */
+        .category-filter::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .category-filter::-webkit-scrollbar-track {
+            background: #1F2030;
+        }
+
+        .category-filter::-webkit-scrollbar-thumb {
+            background: #4CAF50;
+            border-radius: 3px;
+        }
+
+        .category-filter::-webkit-scrollbar-thumb:hover {
+            background: #45a049;
+        }
+
+        /* For Firefox */
+        .category-filter {
+            scrollbar-width: thin;
+            scrollbar-color: #4CAF50 #1F2030;
+        }
+
+        .category-btn {
+            display: block;
+            width: 100%;
+            background: #2a2a3a;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background: #4CAF50;
+            transform: translateX(5px);
+        }
+
+        /* Adjust main content to account for sidebar */
+        main {
+            margin-left: 100px;
+            padding: 20px;
+            min-height: calc(100vh - 80px); /* Full height minus header */
+        }
+
+        /* No results message */
+        .no-results-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            background: #2a2a3a;
+            border-radius: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
+
+        .no-results-message p:first-child {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .no-results-message p:last-child {
+            font-size: 0.9em;
+            color: #666;
+        }
+
     </style>
 
     <link rel="stylesheet" href="../css/base.css">
@@ -81,22 +272,224 @@
 
     <div id="header"></div>
     <main>
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Welcome to Our Game World</h1>
-                <p>Play the best online games for free!</p>
-                <a href="play.html" class="play-btn">Bắt đầu chơi ngay</a>
+        <div class="category-filter">
+            <button class="category-btn active" data-category="all">Tất cả</button>
+            <button class="category-btn" data-category="action">Action</button>
+            <button class="category-btn" data-category="adventure">Adventure</button>
+            <button class="category-btn" data-category="arcade">Arcade</button>
+            <button class="category-btn" data-category="board">Board Game</button>
+            <button class="category-btn" data-category="card">Card Game</button>
+            <button class="category-btn" data-category="casual">Casual</button>
+            <button class="category-btn" data-category="educational">Educational</button>
+            <button class="category-btn" data-category="fighting">Fighting</button>
+            <button class="category-btn" data-category="horror">Horror</button>
+            <button class="category-btn" data-category="music">Music & Rhythm</button>
+            <button class="category-btn" data-category="platformer">Platformer</button>
+            <button class="category-btn" data-category="puzzle">Puzzle</button>
+            <button class="category-btn" data-category="racing">Racing</button>
+            <button class="category-btn" data-category="rpg">RPG</button>
+            <button class="category-btn" data-category="shooter">Shooter</button>
+            <button class="category-btn" data-category="simulation">Simulation</button>
+            <button class="category-btn" data-category="sports">Sports</button>
+            <button class="category-btn" data-category="strategy">Strategy</button>
+            <button class="category-btn" data-category="survival">Survival</button>
+            <button class="category-btn" data-category="tower-defense">Tower Defense</button>
+        </div>
+        <div class="container">
+            <div class="search-container">
+                <form onsubmit="return false;">
+                    <input type="text" class="search-bar" placeholder="Tìm kiếm game..." id="searchInput">
+                    <button type="button" class="search-btn" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
             </div>
-        </section>
+            <div class="game-list">
 
-        <section class="games-grid" id="gamesGrid">
-            <div class="section-header">
-                <h2>Danh sách game</h2>
-            </div>
-            <div class="games-list">
-                <!-- Games will be loaded here -->
-            </div>
-        </section>
+        <style>
+            .search-container {
+                max-width: 500px;
+                margin: 0px auto;
+                position: fixed;
+                top: 20px;
+                left: 40%;
+                z-index: 150;
+            }
+        
+            .search-bar {
+                width: 100%;
+                border: none;
+                border-radius: 20px;
+                background: #2a2a3a;
+                color: #fff;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                padding: 10px 40px 10px 15px;
+            }
+        
+            .search-bar:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px #4CAF50;
+                background: #2f2f42;
+            }
+        
+            .search-bar::placeholder {
+                color: #888;
+            }
+        
+            .search-btn {
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: #888;
+                cursor: pointer;
+                padding: 5px;
+                transition: color 0.3s ease;
+            }
+        
+            .search-btn:hover {
+                color: #4CAF50;
+            }
+        
+            .no-results-message {
+                text-align: center;
+                padding: 20px;
+                color: #888;
+                background: #2a2a3a;
+                border-radius: 8px;
+                margin: 20px 0;
+            }
+        
+            .no-results-message p {
+                margin: 5px 0;
+            }
+        </style>
+        
+        <script>
+            // Setup search functionality
+            function setupSearch() {
+                console.log('Setting up search...');
+                const searchInput = document.getElementById('searchInput');
+                const searchBtn = document.getElementById('searchBtn');
+                console.log('Search elements:', { searchInput, searchBtn });
+        
+                if (searchInput && searchBtn) {
+                    console.log('Search elements found, adding event listeners...');
+        
+                    // Hàm xử lý tìm kiếm
+                    const handleSearch = () => {
+                        const searchTerm = searchInput.value.toLowerCase().trim();
+                        console.log('Searching for:', searchTerm);
+                        
+                        // Kiểm tra xem có game-list không
+                        const gameList = document.querySelector('.game-list');
+                        if (!gameList) {
+                            console.error('Game list container not found!');
+                            return;
+                        }
+                        
+                        const games = gameList.querySelectorAll('.game-item');
+                        console.log('Found games:', games.length);
+                        
+                        if (games.length === 0) {
+                            console.error('No game items found in the game list!');
+                            return;
+                        }
+        
+                        let hasResults = false;
+        
+                        games.forEach((game, index) => {
+                            const title = game.querySelector('.game-title')?.textContent.toLowerCase() || '';
+                            const category = game.querySelector('.game-category')?.textContent.toLowerCase() || '';
+                            console.log(`Game ${index + 1}:`, { title, category });
+                            
+                            if (title.includes(searchTerm) || category.includes(searchTerm)) {
+                                game.style.display = 'block';
+                                hasResults = true;
+                                console.log(`Game ${index + 1} matched search term`);
+                            } else {
+                                game.style.display = 'none';
+                                console.log(`Game ${index + 1} did not match search term`);
+                            }
+                        });
+        
+                        // Hiển thị thông báo khi không tìm thấy kết quả
+                        const noResultsMessage = document.querySelector('.no-results-message');
+                        if (!hasResults && searchTerm !== '') {
+                            console.log('No results found, showing message');
+                            if (!noResultsMessage) {
+                                const message = document.createElement('div');
+                                message.className = 'no-results-message';
+                                message.innerHTML = `
+                                    <p>Không tìm thấy game nào phù hợp với "${searchTerm}"</p>
+                                    <p>Vui lòng thử từ khóa khác</p>
+                                `;
+                                gameList.appendChild(message);
+                            }
+                        } else if (noResultsMessage) {
+                            console.log('Removing no results message');
+                            noResultsMessage.remove();
+                        }
+        
+                        // Reset category filter khi tìm kiếm
+                        const categoryButtons = document.querySelectorAll('.category-btn');
+                        if (categoryButtons.length > 0) {
+                            console.log('Resetting category filters');
+                            categoryButtons.forEach(btn => {
+                                btn.classList.remove('active');
+                            });
+                            const allCategoryBtn = document.querySelector('.category-btn[data-category="all"]');
+                            if (allCategoryBtn) {
+                                allCategoryBtn.classList.add('active');
+                            }
+                        }
+                    };
+        
+                    // Xử lý sự kiện click nút tìm kiếm
+                    searchBtn.addEventListener('click', (e) => {
+                        console.log('Search button clicked');
+                        e.preventDefault();
+                        handleSearch();
+                    });
+        
+                    // Xử lý sự kiện phím Enter
+                    searchInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            console.log('Enter key pressed');
+                            e.preventDefault();
+                            handleSearch();
+                        }
+                    });
+        
+                    // Thêm phím tắt
+                    document.addEventListener('keydown', (e) => {
+                        // Ctrl + K hoặc Command + K
+                        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                            e.preventDefault();
+                            searchInput.focus();
+                        }
+                    });
+        
+                    console.log('Search setup completed');
+                } else {
+                    console.error('Search elements not found!');
+                }
+            }
+        
+            // Initialize search when DOM is loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setupSearch);
+            } else {
+                setupSearch();
+            }
+        </script>
+
+        <div id="gameList" class="game-list">
+            <!-- Games will be loaded here -->
+        </div>
     </main>
 
     <div id="footer"></div>
@@ -154,37 +547,86 @@
         // Load games
         async function loadGames() {
             try {
-                ui.showLoading();
                 const gamesList = await games.getAllGames();
-                const gamesListElement = document.querySelector('.games-list');
+                const gameListElement = document.getElementById('gameList');
                 
                 if (gamesList.length === 0) {
-                    gamesListElement.innerHTML = `
+                    gameListElement.innerHTML = `
                         <div class="no-games">
-                            <p>Chưa có game nào được thêm vào hệ thống.</p>
+                            <p>Chưa có game nào trong hệ thống.</p>
                         </div>
                     `;
                     return;
                 }
 
-                gamesListElement.innerHTML = gamesList.map(game => `
-                    <div class="game-card">
-                        <img src="${game.imageUrl}" alt="${game.name}" onerror="this.src='../assets/default-game.jpg'">
-                        <div class="game-card-content">
-                            <h3>${game.name}</h3>
-                            <p>${game.description}</p>
-                            <a href="play.html?game=${game.id}" class="play-btn">Chơi ngay</a>
+                // Base64 placeholder image for games without thumbnail
+                const defaultImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzJhMmEzYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM4ODgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+
+                console.log('Games data:', gamesList); // Debug log
+
+                gameListElement.innerHTML = gamesList.map(game => {
+                    // Debug log for each game
+                    console.log('Processing game:', game);
+                    
+                    return `
+                        <div class="game-item" data-category="${game.category || 'uncategorized'}">
+                            <img src="${game.thumbnail || defaultImage}" 
+                                 alt="${game.title}" 
+                                 class="game-thumbnail" 
+                                 onerror="this.onerror=null; this.src='${defaultImage}';">
+                            <div class="game-info">
+                                <h3 class="game-title">${game.title}</h3>
+                                <p class="game-category">${game.category || 'Chưa phân loại'}</p>
+                            </div>
+                            <div class="game-overlay">
+                                <a href="play.html?id=${game.id}" class="play-button">Chơi ngay</a>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+
+                // Thêm xử lý lỗi ảnh
+                document.querySelectorAll('.game-thumbnail').forEach(img => {
+                    img.addEventListener('error', function() {
+                        console.log('Image load error for:', this.src); // Debug log
+                        this.src = defaultImage;
+                    });
+                });
+
+                // Khởi tạo lại chức năng tìm kiếm sau khi games được load
+                if (window.handleSearch) {
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput && searchInput.value) {
+                        window.handleSearch(searchInput.value);
+                    }
+                }
             } catch (error) {
                 console.error('Error loading games:', error);
                 ui.showMessage('Không thể tải danh sách game', 'error');
-            } finally {
-                ui.hideLoading();
             }
         }
 
+        // Category filter
+        document.querySelectorAll('.category-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active button
+                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const category = button.dataset.category;
+                const games = document.querySelectorAll('.game-item');
+
+                games.forEach(game => {
+                    if (category === 'all' || game.dataset.category === category) {
+                        game.style.display = 'block';
+                    } else {
+                        game.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Load games on page load
         loadGames();
     </script>
 </body>

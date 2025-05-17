@@ -64,15 +64,6 @@
             padding: 20px;
         }
 
-        .login-container {
-            width: 100%;
-            max-width: 450px;
-            background: #1F2030;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
 
         /* Hide content until loaded */
         #header, main, #footer {
@@ -221,7 +212,7 @@
 
                     ui.showMessage('Login successful!', 'success');
                     setTimeout(() => {
-                        window.location.href = '../index.html';
+                        window.location.href = "index.html";
                     }, 1500);
                 } else {
                     errorMessage.textContent = data.error || 'Invalid username or password';

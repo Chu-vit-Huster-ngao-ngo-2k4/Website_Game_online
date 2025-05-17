@@ -6,10 +6,10 @@ export const games = {
             const data = await response.json();
             return data.map(game => ({
                 id: game.id,
-                name: game.title,
-                description: game.description || 'Không có mô tả',
-                imageUrl: game.thumbnail || '../assets/default-game.jpg',
-                gameUrl: game.iframe_url
+                title: game.title,
+                category: game.category,
+                thumbnail: game.thumbnail,
+                iframe_url: game.iframe_url
             }));
         } catch (error) {
             console.error('Error fetching games:', error);
@@ -42,10 +42,10 @@ export const games = {
 
             return {
                 id: game.id,
-                name: game.title,
-                description: game.description || 'Không có mô tả',
-                imageUrl: game.thumbnail || '../assets/default-game.jpg',
-                gameUrl: game.iframe_url
+                title: game.title,
+                category: game.category,
+                thumbnail: game.thumbnail,
+                iframe_url: game.iframe_url
             };
         } catch (error) {
             console.error('Error fetching game:', error);
@@ -63,10 +63,10 @@ export const games = {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    title: gameData.name,
-                    description: gameData.description,
-                    thumbnail: gameData.imageUrl,
-                    iframe_url: gameData.gameUrl
+                    title: gameData.title,
+                    category: gameData.category,
+                    thumbnail: gameData.thumbnail,
+                    iframe_url: gameData.iframe_url
                 })
             });
             return await response.json();

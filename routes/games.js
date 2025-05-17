@@ -21,9 +21,10 @@ router.get("/", async (req, res) => {
 
 router.post("/add", adminMiddleware, async (req, res) => {
     try {
-        const { title, iframe_url, thumbnail } = req.body;
+        const { title, category, iframe_url, thumbnail } = req.body;
         const newGame = await Game.create({
             title,
+            category,
             iframe_url,
             thumbnail
         });
@@ -73,6 +74,48 @@ router.get("/delete/:id", adminMiddleware, async (req, res) => {
     } catch (error) {
         console.error("Lỗi khi xóa game:", error);
         res.status(500).json({ error: "Không thể xóa game!" });
+    }
+});
+
+// Get game by ID
+router.get("/get/:id", async (req, res) => {
+    try {
+        const gameId = req.params.id;
+        const game = await Game.findByPk(gameId);
+
+        if (!game) {
+            return res.status(404).json({ error: "Game không tồn tại!" });
+        }
+
+        res.json(game);
+    } catch (error) {
+        console.error("Lỗi khi lấy thông tin game:", error);
+        res.status(500).json({ error: "Không thể lấy thông tin game!" });
+    }
+});
+
+// Update game
+router.put('/update/:id', adminMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, category, iframe_url, thumbnail } = req.body;
+
+        const game = await Game.findByPk(id);
+        if (!game) {
+            return res.status(404).json({ error: "Game không tồn tại!" });
+        }
+
+        await game.update({
+            title,
+            category,
+            iframe_url,
+            thumbnail
+        });
+
+        res.json({ message: "Cập nhật game thành công!", game });
+    } catch (error) {
+        console.error("Lỗi khi cập nhật game:", error);
+        res.status(500).json({ error: "Không thể cập nhật game!" });
     }
 });
 

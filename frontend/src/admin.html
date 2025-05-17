@@ -75,6 +75,7 @@
         .admin-container {
             max-width: 1200px;
             margin: 40px auto;
+            margin-top: 100px;
             padding: 20px;
         }
 
@@ -104,6 +105,7 @@
 
         .form-group {
             margin-bottom: 15px;
+            position: relative;
         }
 
         .form-group label {
@@ -121,6 +123,70 @@
             color: white;
         }
 
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background: #2a2a3a;
+            color: white;
+            cursor: pointer;
+            max-height: 300px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .form-group select option {
+            background: #2a2a3a;
+            color: white;
+            padding: 8px;
+            margin: 2px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Đảm bảo dropdown hiển thị bên dưới */
+        .form-group select option:first-child {
+            position: relative;
+        }
+
+        /* Custom scrollbar for select */
+        .form-group select::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .form-group select::-webkit-scrollbar-track {
+            background: #1F2030;
+            border-radius: 4px;
+        }
+
+        .form-group select::-webkit-scrollbar-thumb {
+            background: #4CAF50;
+            border-radius: 4px;
+        }
+
+        .form-group select::-webkit-scrollbar-thumb:hover {
+            background: #45a049;
+        }
+
+        /* For Firefox */
+        .form-group select {
+            scrollbar-width: thin;
+            scrollbar-color: #4CAF50 #1F2030;
+        }
+
+        /* Đảm bảo dropdown không bị che khuất */
+        .form-group select:focus option {
+            position: relative;
+            z-index: 9999;
+        }
+
         .submit-btn {
             background: #4CAF50;
             color: white;
@@ -131,20 +197,27 @@
         }
 
         .game-list {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 20px;
+            padding: 20px 0;
         }
 
         .game-item {
             background: #1F2030;
             border-radius: 10px;
             padding: 20px;
-            width: 120px;
+            width: 100px;
             position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .game-item:hover {
+            transform: translateY(-5px);
         }
 
         .game-item img {
-            width: auto;
+            width: 100%;
             height: 100px;
             object-fit: cover;
             border-radius: 8px;
@@ -152,9 +225,12 @@
         }
 
         .game-item h3 {
-            font-size: 15px;
+            font-size: 16px;
             margin: 0 0 10px 0;
             color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .game-item p {
@@ -165,6 +241,7 @@
         .game-actions {
             display: flex;
             gap: 10px;
+            justify-content: flex-end;
         }
 
         .game-actions button {
@@ -173,6 +250,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.9em;
+            transition: background-color 0.2s ease;
         }
 
         .edit-btn {
@@ -180,9 +258,34 @@
             color: white;
         }
 
+        .edit-btn:hover {
+            background: #1976D2;
+        }
+
         .delete-btn {
             background: #f44336;
             color: white;
+        }
+
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
+
+        .game-category {
+            color: #4CAF50;
+            font-size: 0.9em;
+            margin: 5px 0;
+            text-transform: capitalize;
+        }
+
+        .cancel-btn {
+            background: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
         }
     </style>
 
@@ -212,6 +315,32 @@
                         <input type="text" id="title" required>
                     </div>
                     <div class="form-group">
+                        <label for="category">Loại Game:</label>
+                        <select id="category" required>
+                            <option value="">Chọn loại game</option>
+                            <option value="action">Action</option>
+                            <option value="adventure">Adventure</option>
+                            <option value="arcade">Arcade</option>
+                            <option value="board">Board Game</option>
+                            <option value="card">Card Game</option>
+                            <option value="casual">Casual</option>
+                            <option value="educational">Educational</option>
+                            <option value="fighting">Fighting</option>
+                            <option value="horror">Horror</option>
+                            <option value="music">Music & Rhythm</option>
+                            <option value="platformer">Platformer</option>
+                            <option value="puzzle">Puzzle</option>
+                            <option value="racing">Racing</option>
+                            <option value="rpg">RPG</option>
+                            <option value="shooter">Shooter</option>
+                            <option value="simulation">Simulation</option>
+                            <option value="sports">Sports</option>
+                            <option value="strategy">Strategy</option>
+                            <option value="survival">Survival</option>
+                            <option value="tower-defense">Tower Defense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="iframe_url">URL Game:</label>
                         <input type="url" id="iframe_url" required>
                     </div>
@@ -220,6 +349,53 @@
                         <input type="url" id="thumbnail" required>
                     </div>
                     <button type="submit" class="submit-btn">Thêm Game</button>
+                </form>
+            </div>
+
+            <div id="editGameForm" class="add-game-form" style="display: none;">
+                <h3>Sửa Game</h3>
+                <form id="updateGameForm">
+                    <input type="hidden" id="edit_game_id">
+                    <div class="form-group">
+                        <label for="edit_title">Tên Game:</label>
+                        <input type="text" id="edit_title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_category">Loại Game:</label>
+                        <select id="edit_category" required>
+                            <option value="">Chọn loại game</option>
+                            <option value="action">Action</option>
+                            <option value="adventure">Adventure</option>
+                            <option value="arcade">Arcade</option>
+                            <option value="board">Board Game</option>
+                            <option value="card">Card Game</option>
+                            <option value="casual">Casual</option>
+                            <option value="educational">Educational</option>
+                            <option value="fighting">Fighting</option>
+                            <option value="horror">Horror</option>
+                            <option value="music">Music & Rhythm</option>
+                            <option value="platformer">Platformer</option>
+                            <option value="puzzle">Puzzle</option>
+                            <option value="racing">Racing</option>
+                            <option value="rpg">RPG</option>
+                            <option value="shooter">Shooter</option>
+                            <option value="simulation">Simulation</option>
+                            <option value="sports">Sports</option>
+                            <option value="strategy">Strategy</option>
+                            <option value="survival">Survival</option>
+                            <option value="tower-defense">Tower Defense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_iframe_url">URL Game:</label>
+                        <input type="url" id="edit_iframe_url" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_thumbnail">URL Ảnh Thumbnail:</label>
+                        <input type="url" id="edit_thumbnail" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Cập nhật Game</button>
+                    <button type="button" class="cancel-btn" onclick="hideEditForm()">Hủy</button>
                 </form>
             </div>
 
@@ -282,7 +458,7 @@
 
         // Check admin access
         if (!auth.checkAuth() || JSON.parse(localStorage.getItem('user') || '{}').role !== 'admin') {
-            window.location.href = '../index.html';
+            window.location.href = 'index.html';
         }
 
         // Show/hide add game form
@@ -308,9 +484,9 @@
 
                 gameListElement.innerHTML = gamesList.map(game => `
                     <div class="game-item">
-                        <img src="${game.imageUrl}" alt="${game.name}" onerror="this.src='../assets/default-game.jpg'">
-                        <h3>${game.name}</h3>
-                        
+                        <img src="${game.thumbnail}" alt="${game.title}" onerror="this.src='../assets/default-game.jpg'">
+                        <h3>${game.title}</h3>
+                        <p class="game-category">${game.category || 'Chưa phân loại'}</p>
                         <div class="game-actions">
                             <button class="edit-btn" onclick="editGame(${game.id})">Sửa</button>
                             <button class="delete-btn" onclick="deleteGame(${game.id})">Xóa</button>
@@ -328,6 +504,7 @@
             e.preventDefault();
             
             const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
             const iframe_url = document.getElementById('iframe_url').value;
             const thumbnail = document.getElementById('thumbnail').value;
 
@@ -340,8 +517,10 @@
                     },
                     body: JSON.stringify({ 
                         title: title,
+                        category: category,
                         iframe_url: iframe_url,
-                        thumbnail: thumbnail })
+                        thumbnail: thumbnail 
+                    })
                 });
 
                 if (!response.ok) {
@@ -360,9 +539,78 @@
 
         // Edit game
         window.editGame = async function(gameId) {
-            // Implement edit functionality
-            ui.showMessage('Edit functionality coming soon', 'info');
+            try {
+                const response = await fetch(`http://localhost:5000/api/games/get/${gameId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch game details');
+                }
+
+                const game = await response.json();
+                
+                // Fill the edit form with game data
+                document.getElementById('edit_game_id').value = game.id;
+                document.getElementById('edit_title').value = game.title;
+                document.getElementById('edit_category').value = game.category || '';
+                document.getElementById('edit_iframe_url').value = game.iframe_url;
+                document.getElementById('edit_thumbnail').value = game.thumbnail;
+
+                // Show edit form
+                document.getElementById('editGameForm').style.display = 'block';
+                document.getElementById('addGameForm').style.display = 'none';
+            } catch (error) {
+                console.error('Error fetching game details:', error);
+                ui.showMessage(error.message || 'Không thể tải thông tin game', 'error');
+            }
         };
+
+        // Hide edit form
+        window.hideEditForm = function() {
+            document.getElementById('editGameForm').style.display = 'none';
+        };
+
+        // Update game
+        document.getElementById('updateGameForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const gameId = document.getElementById('edit_game_id').value;
+            const title = document.getElementById('edit_title').value;
+            const category = document.getElementById('edit_category').value;
+            const iframe_url = document.getElementById('edit_iframe_url').value;
+            const thumbnail = document.getElementById('edit_thumbnail').value;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/games/update/${gameId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ 
+                        title: title,
+                        category: category,
+                        iframe_url: iframe_url,
+                        thumbnail: thumbnail 
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update game');
+                }
+
+                ui.showMessage('Game đã được cập nhật thành công', 'success');
+                document.getElementById('editGameForm').style.display = 'none';
+                loadGames();
+            } catch (error) {
+                console.error('Error updating game:', error);
+                ui.showMessage(error.message || 'Không thể cập nhật game', 'error');
+            }
+        });
 
         // Delete game
         window.deleteGame = async function(gameId) {

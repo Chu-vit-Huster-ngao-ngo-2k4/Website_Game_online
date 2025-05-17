@@ -13,6 +13,11 @@ const Game = sequelize.define('Game', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    category: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: 'uncategorized'
+    },
     iframe_url: {
         type: DataTypes.STRING,
         allowNull: false
@@ -34,6 +39,13 @@ const Game = sequelize.define('Game', {
 }, {
     tableName: 'Games',
     timestamps: true
+});
+
+// Tự động cập nhật database khi model thay đổi
+Game.sync({ alter: true }).then(() => {
+    console.log('Game table has been updated');
+}).catch(err => {
+    console.error('Error updating Game table:', err);
 });
 
 module.exports = Game;

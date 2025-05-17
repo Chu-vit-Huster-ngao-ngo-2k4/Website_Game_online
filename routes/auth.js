@@ -16,37 +16,50 @@ if (!SECRET_KEY) {
 
 // Đăng ký tài khoản
 router.post("/register", async (req, res) => {
-    console.log("Dữ liệu nhận được:", req.body);
+    try {
+        const { username, email, password } = req.body;
 
-    const { username, email, password } = req.body;
-    const validator = require('validator');
+        // Check if user already exists
+        const existingUser = await User.findOne({
+            where: {
+                [Op.or]: [{ username }, { email }]
+            }
+        });
 
-    // Kiểm tra dữ liệu đầu vào
-    if (!username || !email || !password) {
-        return res.status(400).json({ error: "Thiếu thông tin đăng ký!" });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username or email already exists' });
+        }
+
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create user
+        const user = await User.create({
+            username,
+            email,
+            password: hashedPassword
+        });
+
+        // Create token
+        const token = jwt.sign(
+            { id: user.id, username: user.username },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        console.error('Error registering user:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-    if (!validator.isEmail(email)) {
-        return res.status(400).json({ error: "Email không hợp lệ!" });
-    }
-    if (password.length < 6) {
-        return res.status(400).json({ error: "Mật khẩu phải có ít nhất 6 ký tự!" });
-    }
-
-    // Kiểm tra email hoặc username đã tồn tại
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-        return res.status(400).json({ error: "Email đã tồn tại!" });
-    }
-
-    // Mã hóa mật khẩu và lưu vào DB
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({
-        username,
-        email,
-        password: hashedPassword
-    });
-
-    res.json({ message: "Đăng ký thành công!", user: newUser });
 });
 
 // Đăng ký tài khoản admin (route đặc biệt)
@@ -110,33 +123,28 @@ router.post("/register-admin", async (req, res) => {
 // API đăng nhập
 router.post("/login", async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, password } = req.body;
 
-        // Kiểm tra user
+        // Find user
         const user = await User.findOne({ where: { username } });
-        if (!user || user.email !== email) {
-            return res.status(400).json({ error: "Tài khoản hoặc email không đúng!" });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Kiểm tra mật khẩu
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(400).json({ error: "Mật khẩu không đúng!" });
+        // Check password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Tạo JWT Token với thông tin role
+        // Create token
         const token = jwt.sign(
-            { 
-                id: user.id, 
-                role: user.role 
-            }, 
-            SECRET_KEY, 
-            { expiresIn: "2h" }
+            { id: user.id, username: user.username },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
         );
 
-        // Trả về thông tin user và token
-        res.json({ 
-            message: "Đăng nhập thành công!", 
+        res.json({
             token,
             user: {
                 id: user.id,
@@ -145,9 +153,9 @@ router.post("/login", async (req, res) => {
                 role: user.role
             }
         });
-    } catch (err) {
-        console.error("Lỗi đăng nhập:", err);
-        res.status(500).json({ error: "Lỗi đăng nhập!" });
+    } catch (error) {
+        console.error('Error logging in:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
@@ -160,5 +168,55 @@ router.get("/profile", authMiddleware, async (req, res) => {
         res.status(500).json({ error: "Lỗi lấy thông tin người dùng!" });
     }
   });
+
+// Check auth status
+router.get('/check', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findByPk(req.user.id, {
+            attributes: ['id', 'username', 'email']
+        });
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ user });
+    } catch (error) {
+        console.error('Error checking auth:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Change password
+router.post('/change-password', authMiddleware, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.user.id;
+
+        // Find user
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Verify current password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Mật khẩu hiện tại không đúng' });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update password
+        await user.update({ password: hashedPassword });
+
+        res.json({ message: 'Mật khẩu đã được cập nhật thành công' });
+    } catch (error) {
+        console.error('Error changing password:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 module.exports = router;
