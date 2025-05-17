@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "/frontend/src/js/$1"
+    },
+    {
+      "src": "/css/(.*)",
+      "dest": "/frontend/css/$1"
+    },
+    {
+      "src": "/images/(.*)",
+      "dest": "/frontend/images/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/frontend/src/index.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/frontend/src/admin.html"
+    },
+    {
+      "src": "/play",
+      "dest": "/frontend/src/play.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/frontend/src/login.html"
+    },
+    {
+      "src": "/register",
+      "dest": "/frontend/src/register.html"
+    },
+    {
+      "src": "/profile",
+      "dest": "/frontend/src/profile.html"
+    },
+    {
+      "src": "/register-admin",
+      "dest": "/frontend/src/register-admin.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ]
+} 

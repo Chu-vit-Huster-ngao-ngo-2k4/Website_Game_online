@@ -8,260 +8,13 @@
     <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
     
     <style>
-        /* Critical CSS to prevent FOUC */
-        body {
-            margin: 0;
-            padding: 0;
-            background: #1F2030;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            min-height: 100vh;
-            opacity: 0;
-            transition: opacity 0.3s ease-in;
-        }
-
-        body.loaded {
-            opacity: 1;
-        }
-
-        /* Loading screen */
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #1F2030;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.3s ease-out;
-        }
-
-        #loading-screen.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid #4CAF50;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Hide content until loaded */
-        #header, main, #footer {
-            opacity: 0;
-            transition: opacity 0.3s ease-in;
-        }
-
-        #header.loaded, main.loaded, #footer.loaded {
-            opacity: 1;
-        }
-
-        /* Game list styles */
-        .game-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            margin-top: 45px;
-        }
-
-        .game-item {
-            background: #1F2030;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            border: 1px solid #2a2a3a;
-        }
-
-        .game-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border-color: #4CAF50;
-        }
-
-        .game-thumbnail {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-            border-bottom: 2px solid #4CAF50;
-            background-color: #2a2a3a;
-        }
-
-        .game-info {
-            padding: 12px;
-        }
-
-        .game-title {
-            color: #fff;
-            font-size: 1em;
-            margin: 0 0 6px 0;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .game-category {
-            color: #4CAF50;
-            font-size: 0.85em;
-            text-transform: capitalize;
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .game-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .game-item:hover .game-overlay {
-            opacity: 1;
-        }
-
-        .play-button {
-            background: #4CAF50;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.9em;
-        }
-
-        .play-button:hover {
-            background: #45a049;
-            transform: scale(1.05);
-        }
-
-        /* No games message */
-        .no-games {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 40px;
-            background: #2a2a3a;
-            border-radius: 12px;
-            color: #888;
-        }
-
-        /* Category filter */
-        .category-filter {
-            position: fixed;
-            left: 0;
-            top: 80px;
-            height: calc(100vh - 80px);
-            background: #1F2030;
-            padding: 20px;
-            border-right: 1px solid #2a2a3a;
-            z-index: 5;
-            width: 150px;
-            overflow-y: auto;
-        }
-
-        /* Custom scrollbar for category filter */
-        .category-filter::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .category-filter::-webkit-scrollbar-track {
-            background: #1F2030;
-        }
-
-        .category-filter::-webkit-scrollbar-thumb {
-            background: #4CAF50;
-            border-radius: 3px;
-        }
-
-        .category-filter::-webkit-scrollbar-thumb:hover {
-            background: #45a049;
-        }
-
-        /* For Firefox */
-        .category-filter {
-            scrollbar-width: thin;
-            scrollbar-color: #4CAF50 #1F2030;
-        }
-
-        .category-btn {
-            display: block;
-            width: 100%;
-            background: #2a2a3a;
-            color: #fff;
-            border: none;
-            padding: 12px 20px;
-            margin: 5px 0;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: left;
-            font-size: 0.9em;
-        }
-
-        .category-btn:hover,
-        .category-btn.active {
-            background: #4CAF50;
-            transform: translateX(5px);
-        }
-
-        /* Adjust main content to account for sidebar */
-        main {
-            margin-left: 100px;
-            padding: 20px;
-            min-height: calc(100vh - 80px); /* Full height minus header */
-        }
-
-        /* No results message */
-        .no-results-message {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 40px;
-            background: #2a2a3a;
-            border-radius: 12px;
-            color: #888;
-            margin-top: 20px;
-        }
-
-        .no-results-message p:first-child {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-            color: #fff;
-        }
-
-        .no-results-message p:last-child {
-            font-size: 0.9em;
-            color: #666;
-        }
 
     </style>
 
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/common.css">
     <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/footer.css">
 </head>
 
 <body>
@@ -273,38 +26,159 @@
     <div id="header"></div>
     <main>
         <div class="category-filter">
-            <button class="category-btn active" data-category="all">Tất cả</button>
-            <button class="category-btn" data-category="action">Action</button>
-            <button class="category-btn" data-category="adventure">Adventure</button>
-            <button class="category-btn" data-category="arcade">Arcade</button>
-            <button class="category-btn" data-category="board">Board Game</button>
-            <button class="category-btn" data-category="card">Card Game</button>
-            <button class="category-btn" data-category="casual">Casual</button>
-            <button class="category-btn" data-category="educational">Educational</button>
-            <button class="category-btn" data-category="fighting">Fighting</button>
-            <button class="category-btn" data-category="horror">Horror</button>
-            <button class="category-btn" data-category="music">Music & Rhythm</button>
-            <button class="category-btn" data-category="platformer">Platformer</button>
-            <button class="category-btn" data-category="puzzle">Puzzle</button>
-            <button class="category-btn" data-category="racing">Racing</button>
-            <button class="category-btn" data-category="rpg">RPG</button>
-            <button class="category-btn" data-category="shooter">Shooter</button>
-            <button class="category-btn" data-category="simulation">Simulation</button>
-            <button class="category-btn" data-category="sports">Sports</button>
-            <button class="category-btn" data-category="strategy">Strategy</button>
-            <button class="category-btn" data-category="survival">Survival</button>
-            <button class="category-btn" data-category="tower-defense">Tower Defense</button>
+            <ul class="category-list">
+                <li>
+                    <button class="category-btn active" data-category="all">
+                        <span class="emoji">⭐</span>
+                        <span>Tất cả</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="action">
+                        <span class="emoji">⚡</span>
+                        <span>Action</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="adventure">
+                        <span class="emoji">🧭</span>
+                        <span>Adventure</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="arcade">
+                        <span class="emoji">👻</span>
+                        <span>Arcade</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="board">
+                        <span class="emoji">🎲</span>
+                        <span>Board Game</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="card">
+                        <span class="emoji">❤️</span>
+                        <span>Card Game</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="casual">
+                        <span class="emoji">☀️</span>
+                        <span>Casual</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="educational">
+                        <span class="emoji">📚</span>
+                        <span>Educational</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="fighting">
+                        <span class="emoji">✊</span>
+                        <span>Fighting</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="horror">
+                        <span class="emoji">💀</span>
+                        <span>Horror</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="music">
+                        <span class="emoji">🎵</span>
+                        <span>Music & Rhythm</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="platformer">
+                        <span class="emoji">👣</span>
+                        <span>Platformer</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="puzzle">
+                        <span class="emoji">🧩</span>
+                        <span>Puzzle</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="racing">
+                        <span class="emoji">🚗</span>
+                        <span>Racing</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="rpg">
+                        <span class="emoji">🧙‍♂️</span>
+                        <span>RPG</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="shooter">
+                        <span class="emoji">🎯</span>
+                        <span>Shooter</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="simulation">
+                        <span class="emoji">🤖</span>
+                        <span>Simulation</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="sports">
+                        <span class="emoji">🏀</span>
+                        <span>Sports</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="strategy">
+                        <span class="emoji">♞</span>
+                        <span>Strategy</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="survival">
+                        <span class="emoji">⛺</span>
+                        <span>Survival</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="category-btn" data-category="tower-defense">
+                        <span class="emoji">♜</span>
+                        <span>Tower Defense</span>
+                    </button>
+                </li>
+            </ul>
         </div>
         <div class="container">
             <div class="search-container">
-                <form onsubmit="return false;">
-                    <input type="text" class="search-bar" placeholder="Tìm kiếm game..." id="searchInput">
-                    <button type="button" class="search-btn" id="searchBtn">
+                <form onsubmit="return false;" role="search" aria-label="Tìm kiếm game">
+                    <input type="text" 
+                           class="search-bar" 
+                           placeholder="Tìm kiếm game..." 
+                           id="searchInput"
+                           aria-label="Nhập từ khóa tìm kiếm"
+                           aria-describedby="searchDescription">
+                    <button type="button" 
+                            class="search-btn" 
+                            id="searchBtn"
+                            aria-label="Tìm kiếm">
                         <i class="fas fa-search"></i>
                     </button>
+                    <div id="searchDescription" class="visually-hidden">
+                        Nhấn Enter để tìm kiếm, hoặc sử dụng phím tắt Ctrl+K
+                    </div>
                 </form>
+                <div class="search-loading" id="searchLoading" aria-hidden="true">
+                    <div class="spinner"></div>
+                </div>
             </div>
-            <div class="game-list">
+           
 
         <style>
             .search-container {
@@ -354,6 +228,31 @@
                 color: #4CAF50;
             }
         
+            .search-loading {
+                display: none;
+                position: absolute;
+                right: 40px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+        
+            .search-loading.active {
+                display: block;
+            }
+        
+            .search-loading .spinner {
+                width: 16px;
+                height: 16px;
+                border: 2px solid #4CAF50;
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: spin 0.8s linear infinite;
+            }
+        
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        
             .no-results-message {
                 text-align: center;
                 padding: 20px;
@@ -361,65 +260,108 @@
                 background: #2a2a3a;
                 border-radius: 8px;
                 margin: 20px 0;
+                animation: fadeIn 0.3s ease;
             }
         
             .no-results-message p {
                 margin: 5px 0;
             }
+        
+            .game-item {
+                transition: all 0.3s ease;
+            }
+        
+            .game-item.hidden {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+        
+            .visually-hidden {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                border: 0;
+            }
+        
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
         </style>
         
         <script>
+            // Debounce function
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+        
             // Setup search functionality
             function setupSearch() {
-                console.log('Setting up search...');
                 const searchInput = document.getElementById('searchInput');
                 const searchBtn = document.getElementById('searchBtn');
-                console.log('Search elements:', { searchInput, searchBtn });
-        
+                const searchLoading = document.getElementById('searchLoading');
+
                 if (searchInput && searchBtn) {
-                    console.log('Search elements found, adding event listeners...');
-        
-                    // Hàm xử lý tìm kiếm
-                    const handleSearch = () => {
+                    const handleSearch = async () => {
                         const searchTerm = searchInput.value.toLowerCase().trim();
-                        console.log('Searching for:', searchTerm);
-                        
-                        // Kiểm tra xem có game-list không
                         const gameList = document.querySelector('.game-list');
+                        
                         if (!gameList) {
                             console.error('Game list container not found!');
                             return;
                         }
                         
                         const games = gameList.querySelectorAll('.game-item');
-                        console.log('Found games:', games.length);
-                        
                         if (games.length === 0) {
                             console.error('No game items found in the game list!');
                             return;
                         }
-        
-                        let hasResults = false;
-        
-                        games.forEach((game, index) => {
+
+                        // Nếu searchTerm rỗng, hiện tất cả game ngay lập tức
+                        if (searchTerm === '') {
+                            games.forEach(game => {
+                                game.style.display = 'block';
+                            });
+                            const noResultsMessage = document.querySelector('.no-results-message');
+                            if (noResultsMessage) {
+                                noResultsMessage.remove();
+                            }
+                            return;
+                        }
+
+                        // Show loading state
+                        searchLoading.classList.add('active');
+
+                        let visibleGames = 0;
+
+                        // Xử lý tìm kiếm
+                        games.forEach(game => {
                             const title = game.querySelector('.game-title')?.textContent.toLowerCase() || '';
                             const category = game.querySelector('.game-category')?.textContent.toLowerCase() || '';
-                            console.log(`Game ${index + 1}:`, { title, category });
                             
                             if (title.includes(searchTerm) || category.includes(searchTerm)) {
                                 game.style.display = 'block';
-                                hasResults = true;
-                                console.log(`Game ${index + 1} matched search term`);
+                                visibleGames++;
                             } else {
                                 game.style.display = 'none';
-                                console.log(`Game ${index + 1} did not match search term`);
                             }
                         });
-        
+
                         // Hiển thị thông báo khi không tìm thấy kết quả
                         const noResultsMessage = document.querySelector('.no-results-message');
-                        if (!hasResults && searchTerm !== '') {
-                            console.log('No results found, showing message');
+                        if (visibleGames === 0) {
                             if (!noResultsMessage) {
                                 const message = document.createElement('div');
                                 message.className = 'no-results-message';
@@ -430,14 +372,12 @@
                                 gameList.appendChild(message);
                             }
                         } else if (noResultsMessage) {
-                            console.log('Removing no results message');
                             noResultsMessage.remove();
                         }
-        
+
                         // Reset category filter khi tìm kiếm
                         const categoryButtons = document.querySelectorAll('.category-btn');
                         if (categoryButtons.length > 0) {
-                            console.log('Resetting category filters');
                             categoryButtons.forEach(btn => {
                                 btn.classList.remove('active');
                             });
@@ -446,24 +386,33 @@
                                 allCategoryBtn.classList.add('active');
                             }
                         }
+
+                        // Hide loading state
+                        setTimeout(() => {
+                            searchLoading.classList.remove('active');
+                        }, 300);
                     };
-        
+
+                    // Debounced search function
+                    const debouncedSearch = debounce(handleSearch, 300);
+
                     // Xử lý sự kiện click nút tìm kiếm
                     searchBtn.addEventListener('click', (e) => {
-                        console.log('Search button clicked');
                         e.preventDefault();
                         handleSearch();
                     });
-        
+
+                    // Xử lý sự kiện input với debounce
+                    searchInput.addEventListener('input', debouncedSearch);
+
                     // Xử lý sự kiện phím Enter
                     searchInput.addEventListener('keypress', (e) => {
                         if (e.key === 'Enter') {
-                            console.log('Enter key pressed');
                             e.preventDefault();
                             handleSearch();
                         }
                     });
-        
+
                     // Thêm phím tắt
                     document.addEventListener('keydown', (e) => {
                         // Ctrl + K hoặc Command + K
@@ -472,10 +421,6 @@
                             searchInput.focus();
                         }
                     });
-        
-                    console.log('Search setup completed');
-                } else {
-                    console.error('Search elements not found!');
                 }
             }
         
@@ -512,17 +457,17 @@
                 const footerHtml = await footerResponse.text();
                 document.getElementById('footer').innerHTML = footerHtml;
 
-                // Update navigation after header is loaded
-                ui.updateNavigation();
-                
-                // Add logout event listener after header is loaded
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        auth.logout();
-                    });
-                }
+           // Load header script
+           const script = document.createElement('script');
+                script.src = './js/header.js';
+                script.onload = () => {
+                    if (typeof window.initHeader === 'function') {
+                        window.initHeader();
+                    } else {
+                        console.error('initHeader function not found!');
+                    }
+                };
+                document.head.appendChild(script);
 
                 // Show content when components are loaded
                 document.body.classList.add('loaded');
@@ -594,12 +539,7 @@
                 });
 
                 // Khởi tạo lại chức năng tìm kiếm sau khi games được load
-                if (window.handleSearch) {
-                    const searchInput = document.getElementById('searchInput');
-                    if (searchInput && searchInput.value) {
-                        window.handleSearch(searchInput.value);
-                    }
-                }
+                setupSearch();
             } catch (error) {
                 console.error('Error loading games:', error);
                 ui.showMessage('Không thể tải danh sách game', 'error');

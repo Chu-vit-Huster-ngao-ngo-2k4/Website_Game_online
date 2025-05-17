@@ -1,646 +1,402 @@
 <!DOCTYPE html>
 <html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quản trị - HUST Online Games</title>
 
-    <style>
-        /* Critical CSS to prevent FOUC */
-        body {
-            margin: 0;
-            padding: 0;
-            background: #1F2030;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            min-height: 100vh;
-            opacity: 0;
-            transition: opacity 0.3s ease-in;
-        }
+    <style></style>
 
-        body.loaded {
-            opacity: 1;
-        }
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+  </head>
 
-        /* Loading screen */
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #1F2030;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.3s ease-out;
-        }
-
-        #loading-screen.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid #4CAF50;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Hide content until loaded */
-        #header,
-        main,
-        #footer {
-            opacity: 0;
-            transition: opacity 0.3s ease-in;
-        }
-
-        #header.loaded,
-        main.loaded,
-        #footer.loaded {
-            opacity: 1;
-        }
-
-        .admin-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            margin-top: 100px;
-            padding: 20px;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .admin-header h2 {
-            margin: 0;
-            color: #fff;
-        }
-
-        .add-game-form {
-            background: #1F2030;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .add-game-form h3 {
-            margin: 0 0 20px 0;
-            color: #fff;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #ccc;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #333;
-            background: #2a2a3a;
-            color: white;
-        }
-
-        .form-group select {
-            width: 100%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #333;
-            background: #2a2a3a;
-            color: white;
-            cursor: pointer;
-            max-height: 300px;
-            overflow-y: auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .form-group select:focus {
-            outline: none;
-            border-color: #4CAF50;
-        }
-
-        .form-group select option {
-            background: #2a2a3a;
-            color: white;
-            padding: 8px;
-            margin: 2px 0;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Đảm bảo dropdown hiển thị bên dưới */
-        .form-group select option:first-child {
-            position: relative;
-        }
-
-        /* Custom scrollbar for select */
-        .form-group select::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .form-group select::-webkit-scrollbar-track {
-            background: #1F2030;
-            border-radius: 4px;
-        }
-
-        .form-group select::-webkit-scrollbar-thumb {
-            background: #4CAF50;
-            border-radius: 4px;
-        }
-
-        .form-group select::-webkit-scrollbar-thumb:hover {
-            background: #45a049;
-        }
-
-        /* For Firefox */
-        .form-group select {
-            scrollbar-width: thin;
-            scrollbar-color: #4CAF50 #1F2030;
-        }
-
-        /* Đảm bảo dropdown không bị che khuất */
-        .form-group select:focus option {
-            position: relative;
-            z-index: 9999;
-        }
-
-        .submit-btn {
-            background: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .game-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 20px;
-            padding: 20px 0;
-        }
-
-        .game-item {
-            background: #1F2030;
-            border-radius: 10px;
-            padding: 20px;
-            width: 100px;
-            position: relative;
-            transition: transform 0.2s ease;
-        }
-
-        .game-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .game-item img {
-            width: 100%;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .game-item h3 {
-            font-size: 16px;
-            margin: 0 0 10px 0;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .game-item p {
-            color: #ccc;
-            margin: 0 0 15px 0;
-        }
-
-        .game-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .game-actions button {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.2s ease;
-        }
-
-        .edit-btn {
-            background: #2196F3;
-            color: white;
-        }
-
-        .edit-btn:hover {
-            background: #1976D2;
-        }
-
-        .delete-btn {
-            background: #f44336;
-            color: white;
-        }
-
-        .delete-btn:hover {
-            background: #d32f2f;
-        }
-
-        .game-category {
-            color: #4CAF50;
-            font-size: 0.9em;
-            margin: 5px 0;
-            text-transform: capitalize;
-        }
-
-        .cancel-btn {
-            background: #f44336;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-    </style>
-
-    <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../css/main.css">
-</head>
-
-<body>
+  <body>
     <!-- Loading screen -->
     <div id="loading-screen">
-        <div class="loading-spinner"></div>
+      <div class="loading-spinner"></div>
     </div>
 
     <div id="header"></div>
     <main>
-        <div class="admin-container">
-            <div class="admin-header">
-                <h2>Quản lý Game</h2>
-                <button class="submit-btn" onclick="showAddGameForm()">Thêm Game Mới</button>
-            </div>
-
-            <div id="addGameForm" class="add-game-form" style="display: none;">
-                <h3>Thêm Game Mới</h3>
-                <form id="newGameForm">
-                    <div class="form-group">
-                        <label for="title">Tên Game:</label>
-                        <input type="text" id="title" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="category">Loại Game:</label>
-                        <select id="category" required>
-                            <option value="">Chọn loại game</option>
-                            <option value="action">Action</option>
-                            <option value="adventure">Adventure</option>
-                            <option value="arcade">Arcade</option>
-                            <option value="board">Board Game</option>
-                            <option value="card">Card Game</option>
-                            <option value="casual">Casual</option>
-                            <option value="educational">Educational</option>
-                            <option value="fighting">Fighting</option>
-                            <option value="horror">Horror</option>
-                            <option value="music">Music & Rhythm</option>
-                            <option value="platformer">Platformer</option>
-                            <option value="puzzle">Puzzle</option>
-                            <option value="racing">Racing</option>
-                            <option value="rpg">RPG</option>
-                            <option value="shooter">Shooter</option>
-                            <option value="simulation">Simulation</option>
-                            <option value="sports">Sports</option>
-                            <option value="strategy">Strategy</option>
-                            <option value="survival">Survival</option>
-                            <option value="tower-defense">Tower Defense</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="iframe_url">URL Game:</label>
-                        <input type="url" id="iframe_url" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="thumbnail">URL Ảnh Thumbnail:</label>
-                        <input type="url" id="thumbnail" required>
-                    </div>
-                    <button type="submit" class="submit-btn">Thêm Game</button>
-                </form>
-            </div>
-
-            <div id="editGameForm" class="add-game-form" style="display: none;">
-                <h3>Sửa Game</h3>
-                <form id="updateGameForm">
-                    <input type="hidden" id="edit_game_id">
-                    <div class="form-group">
-                        <label for="edit_title">Tên Game:</label>
-                        <input type="text" id="edit_title" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_category">Loại Game:</label>
-                        <select id="edit_category" required>
-                            <option value="">Chọn loại game</option>
-                            <option value="action">Action</option>
-                            <option value="adventure">Adventure</option>
-                            <option value="arcade">Arcade</option>
-                            <option value="board">Board Game</option>
-                            <option value="card">Card Game</option>
-                            <option value="casual">Casual</option>
-                            <option value="educational">Educational</option>
-                            <option value="fighting">Fighting</option>
-                            <option value="horror">Horror</option>
-                            <option value="music">Music & Rhythm</option>
-                            <option value="platformer">Platformer</option>
-                            <option value="puzzle">Puzzle</option>
-                            <option value="racing">Racing</option>
-                            <option value="rpg">RPG</option>
-                            <option value="shooter">Shooter</option>
-                            <option value="simulation">Simulation</option>
-                            <option value="sports">Sports</option>
-                            <option value="strategy">Strategy</option>
-                            <option value="survival">Survival</option>
-                            <option value="tower-defense">Tower Defense</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_iframe_url">URL Game:</label>
-                        <input type="url" id="edit_iframe_url" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_thumbnail">URL Ảnh Thumbnail:</label>
-                        <input type="url" id="edit_thumbnail" required>
-                    </div>
-                    <button type="submit" class="submit-btn">Cập nhật Game</button>
-                    <button type="button" class="cancel-btn" onclick="hideEditForm()">Hủy</button>
-                </form>
-            </div>
-
-            <div id="gameList" class="game-list">
-                <!-- Danh sách game sẽ được thêm vào đây bằng JavaScript -->
-            </div>
+      <div class="admin-container">
+        <div class="admin-header">
+          <h2>Quản lý Game</h2>
+          <button class="submit-btn" onclick="showAddGameForm()">
+            Thêm Game Mới
+          </button>
         </div>
+
+        <div id="addGameForm" class="add-game-form" style="display: none">
+          <h3>Thêm Game Mới</h3>
+          <form id="newGameForm">
+            <div class="form-group">
+              <label for="title">Tên Game:</label>
+              <input type="text" id="title" required />
+            </div>
+            <div class="form-group">
+              <label for="category">Loại Game:</label>
+              <select id="category" required>
+                <option value="">Chọn loại game</option>
+                <option value="action">Action</option>
+                <option value="adventure">Adventure</option>
+                <option value="arcade">Arcade</option>
+                <option value="board">Board Game</option>
+                <option value="card">Card Game</option>
+                <option value="casual">Casual</option>
+                <option value="educational">Educational</option>
+                <option value="fighting">Fighting</option>
+                <option value="horror">Horror</option>
+                <option value="music">Music & Rhythm</option>
+                <option value="platformer">Platformer</option>
+                <option value="puzzle">Puzzle</option>
+                <option value="racing">Racing</option>
+                <option value="rpg">RPG</option>
+                <option value="shooter">Shooter</option>
+                <option value="simulation">Simulation</option>
+                <option value="sports">Sports</option>
+                <option value="strategy">Strategy</option>
+                <option value="survival">Survival</option>
+                <option value="tower-defense">Tower Defense</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="iframe_url">URL Game:</label>
+              <input type="url" id="iframe_url" required />
+            </div>
+            <div class="form-group">
+              <label for="thumbnail">URL Ảnh Thumbnail:</label>
+              <input type="url" id="thumbnail" required />
+            </div>
+            <button type="submit" class="submit-btn">Thêm Game</button>
+          </form>
+        </div>
+
+        <div id="editGameForm" class="add-game-form" style="display: none">
+          <h3>Sửa Game</h3>
+          <form id="updateGameForm">
+            <input type="hidden" id="edit_game_id" />
+            <div class="form-group">
+              <label for="edit_title">Tên Game:</label>
+              <input type="text" id="edit_title" required />
+            </div>
+            <div class="form-group">
+              <label for="edit_category">Loại Game:</label>
+              <select id="edit_category" required>
+                <option value="">Chọn loại game</option>
+                <option value="action">Action</option>
+                <option value="adventure">Adventure</option>
+                <option value="arcade">Arcade</option>
+                <option value="board">Board Game</option>
+                <option value="card">Card Game</option>
+                <option value="casual">Casual</option>
+                <option value="educational">Educational</option>
+                <option value="fighting">Fighting</option>
+                <option value="horror">Horror</option>
+                <option value="music">Music & Rhythm</option>
+                <option value="platformer">Platformer</option>
+                <option value="puzzle">Puzzle</option>
+                <option value="racing">Racing</option>
+                <option value="rpg">RPG</option>
+                <option value="shooter">Shooter</option>
+                <option value="simulation">Simulation</option>
+                <option value="sports">Sports</option>
+                <option value="strategy">Strategy</option>
+                <option value="survival">Survival</option>
+                <option value="tower-defense">Tower Defense</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="edit_iframe_url">URL Game:</label>
+              <input type="url" id="edit_iframe_url" required />
+            </div>
+            <div class="form-group">
+              <label for="edit_thumbnail">URL Ảnh Thumbnail:</label>
+              <input type="url" id="edit_thumbnail" required />
+            </div>
+            <button type="submit" class="submit-btn">Cập nhật Game</button>
+            <button type="button" class="cancel-btn" onclick="hideEditForm()">
+              Hủy
+            </button>
+          </form>
+        </div>
+
+        <div id="gameList" class="game-list">
+          <!-- Danh sách game sẽ được thêm vào đây bằng JavaScript -->
+        </div>
+      </div>
     </main>
     <div id="footer"></div>
 
     <script type="module">
-        import { auth } from './js/modules/auth.js';
-        import { ui } from './js/modules/ui.js';
-        import { games } from './js/modules/games.js';
+      import { auth } from "./js/modules/auth.js";
+      import { ui } from "./js/modules/ui.js";
+      import { games } from "./js/modules/games.js";
 
-        // Load header and footer first
-        async function loadComponents() {
-            try {
-                // Load header
-                const headerResponse = await fetch('./reuse_model/head.html');
-                const headerHtml = await headerResponse.text();
-                document.getElementById('header').innerHTML = headerHtml;
-                
-                // Load footer
-                const footerResponse = await fetch('./reuse_model/footer.html');
-                const footerHtml = await footerResponse.text();
-                document.getElementById('footer').innerHTML = footerHtml;
+      // Load header and footer first
+      async function loadComponents() {
+        try {
+          // Load header
+          const headerResponse = await fetch("./reuse_model/head.html");
+          const headerHtml = await headerResponse.text();
+          document.getElementById("header").innerHTML = headerHtml;
 
-                // Update navigation after header is loaded
-                ui.updateNavigation();
-                
-                // Add logout event listener after header is loaded
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        auth.logout();
-                    });
-                }
+          // Load footer
+          const footerResponse = await fetch("./reuse_model/footer.html");
+          const footerHtml = await footerResponse.text();
+          document.getElementById("footer").innerHTML = footerHtml;
 
-                // Show content when components are loaded
-                document.body.classList.add('loaded');
-                document.getElementById('header').classList.add('loaded');
-                document.querySelector('main').classList.add('loaded');
-                document.getElementById('footer').classList.add('loaded');
-                
-                // Hide loading screen
-                const loadingScreen = document.getElementById('loading-screen');
-                loadingScreen.classList.add('fade-out');
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 300);
-            } catch (error) {
-                console.error('Error loading components:', error);
+          // Load header script
+          const script = document.createElement("script");
+          script.src = "./js/header.js";
+          script.onload = () => {
+            if (typeof window.initHeader === "function") {
+              window.initHeader();
+            } else {
+              console.error("initHeader function not found!");
             }
+          };
+          document.head.appendChild(script);
+
+          // Show content when components are loaded
+          document.body.classList.add("loaded");
+          document.getElementById("header").classList.add("loaded");
+          document.querySelector("main").classList.add("loaded");
+          document.getElementById("footer").classList.add("loaded");
+
+          // Hide loading screen
+          const loadingScreen = document.getElementById("loading-screen");
+          loadingScreen.classList.add("fade-out");
+          setTimeout(() => {
+            loadingScreen.style.display = "none";
+          }, 300);
+        } catch (error) {
+          console.error("Error loading components:", error);
         }
+      }
 
-        // Start loading components
-        loadComponents();
+      // Start loading components
+      loadComponents();
 
-        // Check admin access
-        if (!auth.checkAuth() || JSON.parse(localStorage.getItem('user') || '{}').role !== 'admin') {
-            window.location.href = 'index.html';
-        }
+      // Check admin access
+      if (
+        !auth.checkAuth() ||
+        JSON.parse(localStorage.getItem("user") || "{}").role !== "admin"
+      ) {
+        window.location.href = "index.html";
+      }
 
-        // Show/hide add game form
-        window.showAddGameForm = function() {
-            const form = document.getElementById('addGameForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        };
+      // Show/hide add game form
+      window.showAddGameForm = function () {
+        const form = document.getElementById("addGameForm");
+        form.style.display = form.style.display === "none" ? "block" : "none";
+      };
 
-        // Load games
-        async function loadGames() {
-            try {
-                const gamesList = await games.getAllGames();
-                const gameListElement = document.getElementById('gameList');
-                
-                if (gamesList.length === 0) {
-                    gameListElement.innerHTML = `
+      // Load games
+      async function loadGames() {
+        try {
+          const gamesList = await games.getAllGames();
+          const gameListElement = document.getElementById("gameList");
+
+          if (gamesList.length === 0) {
+            gameListElement.innerHTML = `
                         <div class="no-games">
                             <p>Chưa có game nào được thêm vào hệ thống.</p>
                         </div>
                     `;
-                    return;
-                }
+            return;
+          }
 
-                gameListElement.innerHTML = gamesList.map(game => `
+          gameListElement.innerHTML = gamesList
+            .map(
+              (game) => `
                     <div class="game-item">
-                        <img src="${game.thumbnail}" alt="${game.title}" onerror="this.src='../assets/default-game.jpg'">
+                        <img src="${game.thumbnail}" alt="${
+                game.title
+              }" onerror="this.src='../assets/default-game.jpg'">
                         <h3>${game.title}</h3>
-                        <p class="game-category">${game.category || 'Chưa phân loại'}</p>
+                        <p class="game-category">${
+                          game.category || "Chưa phân loại"
+                        }</p>
                         <div class="game-actions">
-                            <button class="edit-btn" onclick="editGame(${game.id})">Sửa</button>
-                            <button class="delete-btn" onclick="deleteGame(${game.id})">Xóa</button>
+                            <button class="edit-btn" onclick="editGame(${
+                              game.id
+                            })">Sửa</button>
+                            <button class="delete-btn" onclick="deleteGame(${
+                              game.id
+                            })">Xóa</button>
                         </div>
                     </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading games:', error);
-                ui.showMessage('Không thể tải danh sách game', 'error');
+                `
+            )
+            .join("");
+        } catch (error) {
+          console.error("Error loading games:", error);
+          ui.showMessage("Không thể tải danh sách game", "error");
+        }
+      }
+
+      // Add new game
+      document
+        .getElementById("newGameForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const title = document.getElementById("title").value;
+          const category = document.getElementById("category").value;
+          const iframe_url = document.getElementById("iframe_url").value;
+          const thumbnail = document.getElementById("thumbnail").value;
+
+          try {
+            const response = await fetch(
+              "http://localhost:5000/api/games/add",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({
+                  title: title,
+                  category: category,
+                  iframe_url: iframe_url,
+                  thumbnail: thumbnail,
+                }),
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error("Failed to add game");
             }
+
+            ui.showMessage("Game added successfully", "success");
+            document.getElementById("newGameForm").reset();
+            document.getElementById("addGameForm").style.display = "none";
+            loadGames();
+          } catch (error) {
+            console.error("Error adding game:", error);
+            ui.showMessage(error.message || "Could not add game", "error");
+          }
+        });
+
+      // Edit game
+      window.editGame = async function (gameId) {
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/games/get/${gameId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to fetch game details");
+          }
+
+          const game = await response.json();
+
+          // Fill the edit form with game data
+          document.getElementById("edit_game_id").value = game.id;
+          document.getElementById("edit_title").value = game.title;
+          document.getElementById("edit_category").value = game.category || "";
+          document.getElementById("edit_iframe_url").value = game.iframe_url;
+          document.getElementById("edit_thumbnail").value = game.thumbnail;
+
+          // Show edit form
+          document.getElementById("editGameForm").style.display = "block";
+          document.getElementById("addGameForm").style.display = "none";
+        } catch (error) {
+          console.error("Error fetching game details:", error);
+          ui.showMessage(
+            error.message || "Không thể tải thông tin game",
+            "error"
+          );
+        }
+      };
+
+      // Hide edit form
+      window.hideEditForm = function () {
+        document.getElementById("editGameForm").style.display = "none";
+      };
+
+      // Update game
+      document
+        .getElementById("updateGameForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const gameId = document.getElementById("edit_game_id").value;
+          const title = document.getElementById("edit_title").value;
+          const category = document.getElementById("edit_category").value;
+          const iframe_url = document.getElementById("edit_iframe_url").value;
+          const thumbnail = document.getElementById("edit_thumbnail").value;
+
+          try {
+            const response = await fetch(
+              `http://localhost:5000/api/games/update/${gameId}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({
+                  title: title,
+                  category: category,
+                  iframe_url: iframe_url,
+                  thumbnail: thumbnail,
+                }),
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error("Failed to update game");
+            }
+
+            ui.showMessage("Game đã được cập nhật thành công", "success");
+            document.getElementById("editGameForm").style.display = "none";
+            loadGames();
+          } catch (error) {
+            console.error("Error updating game:", error);
+            ui.showMessage(error.message || "Không thể cập nhật game", "error");
+          }
+        });
+
+      // Delete game
+      window.deleteGame = async function (gameId) {
+        if (!confirm("Are you sure you want to delete this game?")) {
+          return;
         }
 
-        // Add new game
-        document.getElementById('newGameForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const title = document.getElementById('title').value;
-            const category = document.getElementById('category').value;
-            const iframe_url = document.getElementById('iframe_url').value;
-            const thumbnail = document.getElementById('thumbnail').value;
-
-            try {
-                const response = await fetch('http://localhost:5000/api/games/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ 
-                        title: title,
-                        category: category,
-                        iframe_url: iframe_url,
-                        thumbnail: thumbnail 
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to add game');
-                }
-
-                ui.showMessage('Game added successfully', 'success');
-                document.getElementById('newGameForm').reset();
-                document.getElementById('addGameForm').style.display = 'none';
-                loadGames();
-            } catch (error) {
-                console.error('Error adding game:', error);
-                ui.showMessage(error.message || 'Could not add game', 'error');
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/games/delete/${gameId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
-        });
+          );
 
-        // Edit game
-        window.editGame = async function(gameId) {
-            try {
-                const response = await fetch(`http://localhost:5000/api/games/get/${gameId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
+          if (!response.ok) {
+            throw new Error("Failed to delete game");
+          }
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to fetch game details');
-                }
+          ui.showMessage("Game deleted successfully", "success");
+          loadGames();
+        } catch (error) {
+          console.error("Error deleting game:", error);
+          ui.showMessage(error.message || "Could not delete game", "error");
+        }
+      };
 
-                const game = await response.json();
-                
-                // Fill the edit form with game data
-                document.getElementById('edit_game_id').value = game.id;
-                document.getElementById('edit_title').value = game.title;
-                document.getElementById('edit_category').value = game.category || '';
-                document.getElementById('edit_iframe_url').value = game.iframe_url;
-                document.getElementById('edit_thumbnail').value = game.thumbnail;
-
-                // Show edit form
-                document.getElementById('editGameForm').style.display = 'block';
-                document.getElementById('addGameForm').style.display = 'none';
-            } catch (error) {
-                console.error('Error fetching game details:', error);
-                ui.showMessage(error.message || 'Không thể tải thông tin game', 'error');
-            }
-        };
-
-        // Hide edit form
-        window.hideEditForm = function() {
-            document.getElementById('editGameForm').style.display = 'none';
-        };
-
-        // Update game
-        document.getElementById('updateGameForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const gameId = document.getElementById('edit_game_id').value;
-            const title = document.getElementById('edit_title').value;
-            const category = document.getElementById('edit_category').value;
-            const iframe_url = document.getElementById('edit_iframe_url').value;
-            const thumbnail = document.getElementById('edit_thumbnail').value;
-
-            try {
-                const response = await fetch(`http://localhost:5000/api/games/update/${gameId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ 
-                        title: title,
-                        category: category,
-                        iframe_url: iframe_url,
-                        thumbnail: thumbnail 
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to update game');
-                }
-
-                ui.showMessage('Game đã được cập nhật thành công', 'success');
-                document.getElementById('editGameForm').style.display = 'none';
-                loadGames();
-            } catch (error) {
-                console.error('Error updating game:', error);
-                ui.showMessage(error.message || 'Không thể cập nhật game', 'error');
-            }
-        });
-
-        // Delete game
-        window.deleteGame = async function(gameId) {
-            if (!confirm('Are you sure you want to delete this game?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:5000/api/games/delete/${gameId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to delete game');
-                }
-
-                ui.showMessage('Game deleted successfully', 'success');
-                loadGames();
-            } catch (error) {
-                console.error('Error deleting game:', error);
-                ui.showMessage(error.message || 'Could not delete game', 'error');
-            }
-        };
-
-        // Load games on page load
-        loadGames();
+      // Load games on page load
+      loadGames();
     </script>
-</body>
-
+  </body>
 </html>

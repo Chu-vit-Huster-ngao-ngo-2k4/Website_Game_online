@@ -58,29 +58,50 @@
         import { auth } from './js/modules/auth.js';
         import { ui } from './js/modules/ui.js';
 
-        // Load header and footer
-        fetch('./reuse_model/head.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('header').innerHTML = data;
-                // Update navigation after header is loaded
-                ui.updateNavigation();
+       // Load header and footer first
+       async function loadComponents() {
+            try {
+                // Load header
+                const headerResponse = await fetch('./reuse_model/head.html');
+                const headerHtml = await headerResponse.text();
+                document.getElementById('header').innerHTML = headerHtml;
                 
-                // Add logout event listener after header is loaded
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        auth.logout();
-                    });
-                }
-            });
+                // Load footer
+                const footerResponse = await fetch('./reuse_model/footer.html');
+                const footerHtml = await footerResponse.text();
+                document.getElementById('footer').innerHTML = footerHtml;
 
-        fetch('./reuse_model/footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer').innerHTML = data;
-            });
+                // Load header script
+                const script = document.createElement('script');
+                script.src = './js/header.js';
+                script.onload = () => {
+                    if (typeof window.initHeader === 'function') {
+                        window.initHeader();
+                    } else {
+                        console.error('initHeader function not found!');
+                    }
+                };
+                document.head.appendChild(script);
+
+                // Show content when components are loaded
+                document.body.classList.add('loaded');
+                document.getElementById('header').classList.add('loaded');
+                document.querySelector('main').classList.add('loaded');
+                document.getElementById('footer').classList.add('loaded');
+                
+                // Hide loading screen
+                const loadingScreen = document.getElementById('loading-screen');
+                loadingScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 300);
+            } catch (error) {
+                console.error('Error loading components:', error);
+            }
+        }
+
+        // Start loading components
+        loadComponents();
 
         // Handle registration form submission
         document.getElementById('register-form').addEventListener('submit', async (e) => {
