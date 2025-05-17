@@ -156,6 +156,6 @@ Dự án này được cấp phép theo giấy phép MIT - xem file [LICENSE](LI
 
 ## Liên hệ
 
-Tên của bạn - [bvbinh1310@gmail.com]
+Bui Binh - [bvbinh1310@gmail.com]
 
 Link dự án: [https://github.com/Chu-vit-Huster-ngao-ngo-2k4/Wesite_Game_online]
