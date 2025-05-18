@@ -571,7 +571,10 @@
                 font-size: 0.85em;
                 border-radius: 15px;
             }
-
+            .search-container{
+                margin-left: 10px;
+                top: 100px;
+            }
        
 
         
@@ -604,5 +607,10 @@
 
             .game-category {
                 font-size: 0.75em;
+            }
+
+            .search-container{
+                margin-left: 10px;
+                top: -200px;
             }
         }

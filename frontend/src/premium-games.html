@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Games - Game Website</title>
+    <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+    <!-- <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/common.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Premium Games Page Styles */
+        body {
+            background-color: #000;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .premium-header {
+            
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .premium-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.15;
+            z-index: 0;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .premium-header h1 {
+            font-size: 3.5em;
+            color: #fff;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 10px rgba(76, 175, 80, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(76, 175, 80, 0.8); }
+            100% { text-shadow: 0 0 10px rgba(76, 175, 80, 0.5); }
+        }
+
+        .premium-header p {
+            font-size: 1.3em;
+            color: #e0e0e0;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .premium-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 60px 20px;
+            position: relative;
+        }
+
+        .premium-features::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.15;
+            z-index: 0;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        .feature-card {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            padding: 40px 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(76, 175, 80, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            color: #4CAF50;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .feature-card h3 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .feature-card p {
+            color: #e0e0e0;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        .premium-games {
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(15, 15, 26, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+            position: relative;
+        }
+
+        .premium-games::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.15;
+            z-index: 0;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-card {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(76, 175, 80, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.3);
+        }
+
+        .game-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover .game-image {
+            transform: scale(1.05);
+        }
+
+        .game-info {
+            padding: 25px;
+        }
+
+        .game-title {
+            color: #fff;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .game-description {
+            color: #e0e0e0;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        .game-price {
+            color: #4CAF50;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .premium-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            z-index: 1;
+        }
+
+        .play-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .play-button:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .membership-section {
+            background: linear-gradient(135deg, rgba(22, 33, 62, 0.95) 0%, rgba(26, 26, 46, 0.95) 100%);
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .membership-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.15;
+            z-index: 0;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        .membership-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .membership-content h2 {
+            color: #fff;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .membership-content p {
+            color: #e0e0e0;
+            margin-bottom: 35px;
+            line-height: 1.8;
+            font-size: 1em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .membership-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: #fff;
+            padding: 18px 35px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .membership-button:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .premium-header h1 {
+                font-size: 2.2em;
+            }
+
+            .premium-features {
+                grid-template-columns: 1fr;
+                padding: 40px 20px;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .membership-content h2 {
+                font-size: 2em;
+            }
+        }
+
+        /* Add new styles */
+        .game-categories {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: rgba(76, 175, 80, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .featured-games {
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(15, 15, 26, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+        }
+
+        .featured-games h2 {
+            color: #fff;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .featured-slider {
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section-header h2 {
+            color: #fff;
+            font-size: 2em;
+            margin: 0;
+        }
+
+        .game-filters {
+            display: flex;
+            gap: 15px;
+        }
+
+        .sort-select {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .latest-updates {
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(15, 15, 26, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+        }
+
+        .latest-updates h2 {
+            color: #fff;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .updates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .update-card {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(76, 175, 80, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .update-card h3 {
+            color: #fff;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .update-card p {
+            color: #e0e0e0;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .update-date {
+            color: #4CAF50;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+
+        /* Add badges to game cards */
+        .game-badges {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .game-badge {
+            background: rgba(76, 175, 80, 0.9);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .game-badge.new {
+            background: rgba(33, 150, 243, 0.9);
+        }
+
+        .game-badge.trending {
+            background: rgba(233, 30, 99, 0.9);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header"></div>
+
+    <main>
+        <section class="premium-header">
+            <h1>Premium Games Collection</h1>
+            <p>Experience the best gaming content with our premium collection. Get access to exclusive games, early releases, and special features.</p>
+            <div class="game-categories">
+                <button class="category-btn active">All Games</button>
+                <button class="category-btn">Action</button>
+                <button class="category-btn">Adventure</button>
+                <button class="category-btn">RPG</button>
+                <button class="category-btn">Strategy</button>
+                <button class="category-btn">Sports</button>
+            </div>
+        </section>
+
+        <section class="featured-games">
+            <h2>Featured Games</h2>
+            <div class="featured-slider">
+                <!-- Featured games will be loaded here -->
+            </div>
+        </section>
+
+        <section class="premium-features">
+            <div class="feature-card">
+                <i class="fas fa-gamepad feature-icon"></i>
+                <h3>Exclusive Games</h3>
+                <p>Access to premium games not available in the free collection.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-rocket feature-icon"></i>
+                <h3>Early Access</h3>
+                <p>Be the first to play new games before they're released to everyone.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-star feature-icon"></i>
+                <h3>Premium Support</h3>
+                <p>Priority customer support and technical assistance.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-gift feature-icon"></i>
+                <h3>Special Rewards</h3>
+                <p>Exclusive in-game items and special rewards for premium members.</p>
+            </div>
+        </section>
+
+        <section class="premium-games">
+            <div class="section-header">
+                <h2>Premium Games</h2>
+                <div class="game-filters">
+                    <select class="sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+            <div class="games-grid">
+                <!-- Game cards will be dynamically loaded here -->
+            </div>
+        </section>
+
+        <section class="latest-updates">
+            <h2>Latest Updates</h2>
+            <div class="updates-grid">
+                <!-- Updates will be loaded here -->
+            </div>
+        </section>
+
+        <section class="membership-section">
+            <div class="membership-content">
+                <h2>Upgrade to Premium</h2>
+                <p>Get unlimited access to all premium games and exclusive features. Choose from our flexible membership plans and start enjoying the best gaming experience today.</p>
+                <a href="membership.html" class="membership-button">View Membership Plans</a>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer"></div>
+
+    <script type="module">
+        import { games } from './js/modules/games.js';
+        import { auth } from './js/modules/auth.js';
+        import { ui } from './js/modules/ui.js';
+
+        // Make modules available globally
+        window.auth = auth;
+        window.ui = ui;
+
+        // Load header and footer
+        async function loadComponents() {
+            try {
+                // Load header
+                const headerResponse = await fetch('./reuse_model/head.html');
+                const headerHtml = await headerResponse.text();
+                document.getElementById('header').innerHTML = headerHtml;
+                
+                // Load footer
+                const footerResponse = await fetch('./reuse_model/footer.html');
+                const footerHtml = await footerResponse.text();
+                document.getElementById('footer').innerHTML = footerHtml;
+
+                // Load header script
+                const script = document.createElement('script');
+                script.src = './js/header.js';
+                script.onload = () => {
+                    if (typeof window.initHeader === 'function') {
+                        window.initHeader();
+                    }
+                };
+                document.head.appendChild(script);
+            } catch (error) {
+                console.error('Error loading components:', error);
+            }
+        }
+
+        // Load premium games
+        async function loadPremiumGames() {
+            try {
+                const gamesList = await games.getAllGames();
+                const gamesGrid = document.querySelector('.games-grid');
+                
+                // Debug log
+                console.log('All games:', gamesList);
+                
+                // Filter premium games - check for isPremium flag or price > 0
+                const premiumGames = gamesList.filter(game => {
+                    console.log('Checking game:', game);
+                    return game.isPremium === true || (game.price && game.price > 0);
+                });
+                
+                console.log('Premium games:', premiumGames);
+
+                if (premiumGames.length === 0) {
+                    gamesGrid.innerHTML = `
+                        <div class="no-games" style="text-align: center; padding: 40px; color: #e0e0e0;">
+                            <i class="fas fa-gamepad" style="font-size: 3em; color: #4CAF50; margin-bottom: 20px;"></i>
+                            <h3>No Premium Games Available</h3>
+                            <p>Check back soon for new premium games!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                gamesGrid.innerHTML = premiumGames.map(game => `
+                    <div class="game-card">
+                        <span class="premium-badge">Premium</span>
+                        <img src="${game.thumbnail || '../images/default-game.jpg'}" 
+                             alt="${game.title}" 
+                             class="game-image"
+                             onerror="this.src='../images/default-game.jpg'">
+                        <div class="game-info">
+                            <h3 class="game-title">${game.title}</h3>
+                            <p class="game-description">${game.description || 'Experience this exclusive premium game with enhanced features and content.'}</p>
+                            <div class="game-price">$${game.price || '9.99'}</div>
+                            <a href="play.html?id=${game.id}" class="play-button">Play Now</a>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add error handling for images
+                document.querySelectorAll('.game-image').forEach(img => {
+                    img.addEventListener('error', function() {
+                        console.log('Image load error for:', this.src);
+                        this.src = '../images/default-game.jpg';
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error loading premium games:', error);
+                ui.showMessage('Error loading premium games', 'error');
+                
+                // Show error message in the grid
+                const gamesGrid = document.querySelector('.games-grid');
+                gamesGrid.innerHTML = `
+                    <div class="error-message" style="text-align: center; padding: 40px; color: #e0e0e0;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 3em; color: #ff4444; margin-bottom: 20px;"></i>
+                        <h3>Error Loading Games</h3>
+                        <p>Please try again later or contact support if the problem persists.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Add new functions for game categories and filters
+        function setupGameCategories() {
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            categoryButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    categoryButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    // Add filter logic here
+                });
+            });
+        }
+
+        function setupGameFilters() {
+            const sortSelect = document.querySelector('.sort-select');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', (e) => {
+                    // Add sorting logic here
+                });
+            }
+        }
+
+        // Initialize page
+        loadComponents();
+        loadPremiumGames();
+        setupGameCategories();
+        setupGameFilters();
+    </script>
+</body>
+
+</html> 

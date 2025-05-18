@@ -14,13 +14,16 @@
         <span></span>
         <span></span>
     </button>
+
     <div class="nav-links" id="navLinks">
-        <a href="index.html">Trang chủ</a>
-        <a href="profile.html" class="auth-link" style="display: none;">Tài khoản</a>
-        <a href="admin.html" class="admin-link" style="display: none;">Quản trị</a>
-        <a href="login.html" class="guest-link">Đăng nhập</a>
-        <a href="register.html" class="guest-link">Đăng ký</a>
-        <a href="index.html" class="auth-link" style="display: none;" id="logoutBtn">Đăng xuất</a>
+
+       
+        <a href="index.html" class="nav-link">Trang chủ</a>
+        <a href="profile.html" class="nav-link auth-link" style="display: none;">Tài khoản</a>
+        <a href="admin.html" class="nav-link admin-link" style="display: none;">Quản trị</a>
+        <a href="#" class="nav-link auth-link" style="display: none;" id="logoutBtn">Đăng xuất</a>
+        <a href="login.html" class="nav-link guest-link" >Đăng nhập</a>
+        <a href="register.html" class="nav-link guest-link">Đăng ký</a>
     </div>
 </nav>
 
@@ -133,7 +136,7 @@
         flex-wrap: wrap;
     }
 
-    .nav-links a {
+    .nav-link {
         color: #ccc;
         text-decoration: none;
         padding: 8px 12px;
@@ -143,32 +146,63 @@
         font-size: 14px;
     }
 
-    .nav-links a:hover {
+    .nav-link:hover {
         color: #fff;
         background: rgba(255,255,255,0.1);
     }
 
-    .nav-links a.active {
+    .nav-link.active {
         color: #4CAF50;
         background: rgba(76,175,80,0.1);
     }
 
-    .nav-links .auth-link,
-    .nav-links .admin-link {
-        color: #4CAF50;
+    .auth-link {
+        color: #4CAF50 !important;
     }
 
-    .nav-links .auth-link:hover,
-    .nav-links .admin-link:hover {
-        background: rgba(76,175,80,0.2);
+    .auth-link:hover {
+        background: rgba(76,175,80,0.2) !important;
+    }
+
+    .admin-link {
+        color: #4CAF50 !important;
+    }
+
+    .admin-link:hover {
+        background: rgba(76,175,80,0.2) !important;
     }
 
     #logoutBtn {
-        color: #f44336;
+        color: #f44336 !important;
     }
 
     #logoutBtn:hover {
-        background: rgba(244,67,54,0.1);
+        background: rgba(244,67,54,0.1) !important;
+    }
+
+    .guest-link {
+        color: #ccc !important;
+    }
+
+    .guest-link:hover {
+        color: #fff !important;
+        background: rgba(255,255,255,0.1) !important;
+    }
+
+    /* Menu overlay */
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 99;
+    }
+
+    .menu-overlay.active {
+        display: block;
     }
 
     /* Responsive styles */
@@ -197,26 +231,31 @@
 
         .nav-links {
             position: fixed;
-            top: 0;
+            top: 50px;
             right: -100%;
             width: 250px;
-            height: 100vh;
+            height: calc(100vh - 50px);
             background: #1F2030;
             flex-direction: column;
-            padding: 60px 20px 20px;
+            padding: 20px;
             transition: right 0.3s ease;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+            z-index: 100;
         }
 
         .nav-links.active {
             right: 0;
         }
 
-        .nav-links a {
-            width: 100%;
-            text-align: left;
-            padding: 12px 15px;
-            font-size: 15px;
+        .menu-toggle.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
         }
     }
 

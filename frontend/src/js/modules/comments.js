@@ -3,6 +3,9 @@ export const comments = {
     async getComments(gameId) {
         try {
             const response = await fetch(`http://localhost:5000/api/comments/get/${gameId}`);
+            if (!response.ok) {
+                throw new Error('Không thể lấy bình luận');
+            }
             return await response.json();
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -24,6 +27,12 @@ export const comments = {
                     content
                 })
             });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Không thể thêm bình luận');
+            }
+            
             return await response.json();
         } catch (error) {
             console.error('Error adding comment:', error);
@@ -40,6 +49,12 @@ export const comments = {
                     'Authorization': `Bearer ${token}`
                 }
             });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Không thể xóa bình luận');
+            }
+            
             return await response.json();
         } catch (error) {
             console.error('Error deleting comment:', error);

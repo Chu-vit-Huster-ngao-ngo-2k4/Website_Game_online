@@ -192,20 +192,21 @@
 
         // Handle comment submission
         document.getElementById('submitComment').addEventListener('click', async () => {
-            if (!auth.checkAuth()) {
-                ui.showMessage('Vui lòng đăng nhập để bình luận', 'error');
-                return;
-            }
-
-            const commentInput = document.getElementById('commentInput');
-            const content = commentInput.value.trim();
-
-            if (!content) {
-                ui.showMessage('Vui lòng nhập nội dung bình luận', 'error');
-                return;
-            }
-
             try {
+                const isAuthenticated = await auth.checkAuth();
+                if (!isAuthenticated) {
+                    ui.showMessage('Vui lòng đăng nhập để bình luận', 'error');
+                    return;
+                }
+
+                const commentInput = document.getElementById('commentInput');
+                const content = commentInput.value.trim();
+
+                if (!content) {
+                    ui.showMessage('Vui lòng nhập nội dung bình luận', 'error');
+                    return;
+                }
+
                 const urlParams = new URLSearchParams(window.location.search);
                 const gameId = urlParams.get('id');
                 await comments.addComment(gameId, content);

@@ -9,15 +9,19 @@ function initHeader() {
         console.log('Auth module loaded');
         
         // Kiểm tra trạng thái đăng nhập ngay khi load
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        console.log('Initial auth state:', {
-            hasToken: !!token,
-            user: user
-        });
+        checkAuthState();
         
-        // Cập nhật navigation sau khi load auth module
-        updateNavigation();
+        // Thêm event listener cho storage changes
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'token' || e.key === 'user') {
+                checkAuthState();
+            }
+        });
+
+        // Thêm event listener cho custom login event
+        window.addEventListener('userLogin', () => {
+            checkAuthState();
+        });
     }).catch(error => {
         console.error('Error loading auth module:', error);
     });
@@ -29,59 +33,76 @@ function initHeader() {
         console.error('Error loading UI module:', error);
     });
 
-    // Update navigation based on auth status
-    function updateNavigation() {
+    // Function to check authentication state
+    function checkAuthState() {
         const token = localStorage.getItem('token');
         const userStr = localStorage.getItem('user');
-        console.log('Raw user data from localStorage:', userStr);
+        console.log('Checking auth state:', { token: !!token, user: userStr });
         
-        let user = {};
-        try {
-            user = JSON.parse(userStr || '{}');
-            console.log('Parsed user data:', user);
-        } catch (e) {
-            console.error('Error parsing user data:', e);
-        }
-        
-        // Update auth links visibility
-        document.querySelectorAll('.auth-link').forEach(link => {
-            link.style.display = token ? 'block' : 'none';
-        });
-        
-        // Update guest links visibility
-        document.querySelectorAll('.guest-link').forEach(link => {
-            link.style.display = token ? 'none' : 'block';
-        });
-        
-        // Update admin link visibility and setup click handler
-        const adminLink = document.querySelector('.admin-link');
-        if (adminLink) {
-            // Kiểm tra role admin (case insensitive)
-            const isAdmin = user && (
-                user.role === 'admin' || 
-                user.role === 'ADMIN' || 
-                user.role === 'Admin'
-            );
-            
-            console.log('Admin check:', {
-                userExists: !!user,
-                userRole: user.role,
-                isAdmin: isAdmin
-            });
-            
-            adminLink.style.display = isAdmin ? 'block' : 'none';
-            
-            // Remove existing click handlers
-            const newAdminLink = adminLink.cloneNode(true);
-            adminLink.parentNode.replaceChild(newAdminLink, adminLink);
-            
-            // Add new click handler
-            newAdminLink.addEventListener('click', function(e) {
-                if (!isAdmin) {
-                    e.preventDefault();
-                    alert('Bạn không có quyền truy cập trang quản trị!');
-                    return false;
+        let user = null;
+        if (userStr) {
+            try {
+                user = JSON.parse(userStr);
+                // Kiểm tra user data có hợp lệ không
+                if (!user || !user.id || !user.username) {
+                    console.error('Invalid user data');
+                    user = null;
+                    localStorage.removeItem('user');
                 }
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+                localStorage.removeItem('user');
+            }
+        }
+
+        // Nếu không có token, xóa user data
+        if (!token && user) {
+            localStorage.removeItem('user');
+            user = null;
+        }
+
+        // Update navigation based on auth state
+        updateNavigation(token, user);
+    }
+
+    // Update navigation based on auth status
+    function updateNavigation(token, user) {
+        console.log('Updating navigation:', { hasToken: !!token, user });
+        
+        // Get all navigation links
+        const authLinks = document.querySelectorAll('.auth-link');
+        const guestLinks = document.querySelectorAll('.guest-link');
+        const adminLinks = document.querySelectorAll('.admin-link');
+        
+        // Check if user is admin
+        const isAdmin = user && user.id && (
+            user.role === 'admin' || 
+            user.role === 'ADMIN' || 
+            user.role === 'Admin'
+        );
+
+        // Update visibility based on auth state
+        if (token && user && user.id) {  // Phải có cả token và user data hợp lệ
+            // User is logged in
+            authLinks.forEach(link => {
+                link.style.display = 'block';
+            });
+            guestLinks.forEach(link => {
+                link.style.display = 'none';
+            });
+            adminLinks.forEach(link => {
+                link.style.display = isAdmin ? 'block' : 'none';
+            });
+        } else {
+            // User is not logged in
+            authLinks.forEach(link => {
+                link.style.display = 'none';
+            });
+            guestLinks.forEach(link => {
+                link.style.display = 'block';
+            });
+            adminLinks.forEach(link => {
+                link.style.display = 'none';
             });
         }
     }
@@ -103,14 +124,15 @@ function initHeader() {
         console.log('Setting up logout...');
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', (e) => {
+            // Remove existing event listeners
+            const newLogoutBtn = logoutBtn.cloneNode(true);
+            logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
+            
+            newLogoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (window.auth) {
                     window.auth.logout();
-                    // Cập nhật lại navigation sau khi logout
-                    updateNavigation();
-                } else {
-                    console.error('Auth module not loaded');
+                    checkAuthState(); // Check state after logout
                 }
             });
         }
@@ -246,7 +268,7 @@ function initHeader() {
     // Initialize when DOM is loaded
     function initialize() {
         console.log('Initializing...');
-        updateNavigation();
+        checkAuthState();
         setActiveLink();
         setupLogout();
         setupSearch();
