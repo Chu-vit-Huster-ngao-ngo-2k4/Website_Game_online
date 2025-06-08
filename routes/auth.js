@@ -22,7 +22,7 @@ router.post("/register", async (req, res) => {
         // Check if user already exists
         const existingUser = await User.findOne({
             where: {
-                [Op.or]: [{ username }, { email }]
+                [Op.or]: [{ username }, { email }]   //check username or email
             }
         });
 

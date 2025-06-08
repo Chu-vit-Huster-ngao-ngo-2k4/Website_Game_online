@@ -6,6 +6,7 @@ const sequelize = require("./config/database");
 const authRoutes = require("./routes/auth");
 const gamesRoutes = require("./routes/games");
 const commentRoutes = require('./routes/comments');
+const ratingRoutes = require('./routes/ratingRoutes');
 
 const app = express();
 app.use(cors());
@@ -24,6 +25,7 @@ app.use('/images', express.static(path.join(__dirname, 'frontend', 'images')));
 app.use("/api/auth", authRoutes);
 app.use("/api/games", gamesRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/ratings', ratingRoutes);
 
 // Serve HTML files
 const htmlFiles = {

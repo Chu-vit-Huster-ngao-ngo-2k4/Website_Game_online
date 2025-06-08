@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
   );
   
   sequelize.authenticate()
-    .then(() => console.log("✅ Kết nối Database thành công"))
-    .catch(err => console.error("❌ Lỗi kết nối Database:", err));
+    .then(() => console.log(" Kết nối Database thành công"))
+    .catch(err => console.error("Lỗi kết nối Database:", err));
   
   module.exports = sequelize;

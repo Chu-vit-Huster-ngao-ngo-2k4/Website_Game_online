@@ -1,257 +1,399 @@
 <!DOCTYPE html>
 <html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chơi Game - HUST Online Games</title>
     <style>
+      .rating-container {
+        margin: 20px 0;
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+      }
 
+      .rating-stars {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        gap: 5px;
+      }
+
+      .rating-stars input {
+        display: none;
+      }
+
+      .rating-stars label {
+        cursor: pointer;
+        font-size: 30px;
+        color: #ddd;
+        transition: color 0.2s;
+      }
+
+      .rating-stars label:hover,
+      .rating-stars label:hover ~ label,
+      .rating-stars input:checked ~ label {
+        color: #ffd700;
+      }
+
+      .rating-info {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .rating-average {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .rating-count {
+        color: #666;
+        margin-left: 5px;
+      }
     </style>
 
-    <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../css/common.css">
-    <link rel="stylesheet" href="../css/play.css">
-</head>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/play.css" />
+  </head>
 
-<body>
+  <body>
     <!-- Loading screen -->
     <div id="loading-screen">
-        <div class="loading-spinner"></div>
+      <div class="loading-spinner"></div>
     </div>
 
     <div id="header"></div>
     <main>
-        <div class="game-container">
-            <div class="game-header">
-                <h1 class="game-title">Đang tải game...</h1>
-                <a href="index.html" class="back-button">Quay lại</a>
-            </div>
-            <div id="gameFrame" class="game-frame">
-                <div class="loading">Đang tải game...</div>
-            </div>
-
-            <div class="game-controls">
-                <button class="control-btn" id="fullscreenBtn">Toàn màn hình</button>
-            </div>
-
-            <!-- Comments Section -->
-            <div class="comments-section">
-                <h2>Bình luận</h2>
-                <div id="commentForm" class="comment-form">
-                    <textarea id="commentInput" class="comment-input" placeholder="Viết bình luận của bạn..."></textarea>
-                    <button id="submitComment" class="submit-comment">Gửi bình luận</button>
-                </div>
-                <div id="commentsList" class="comments-list">
-                    <!-- Comments will be loaded here -->
-                </div>
-            </div>
+      <div class="game-container">
+        <div class="game-header">
+          <h1 class="game-title">Đang tải game...</h1>
+          <a href="index.html" class="back-button">Quay lại</a>
         </div>
+
+        <div id="gameFrame" class="game-frame">
+          <div class="loading">Đang tải game...</div>
+        </div>
+
+        <div class="game-controls">
+          <button class="control-btn" id="fullscreenBtn">Toàn màn hình</button>
+
+          <!-- Rating Section -->
+          <div class="rating-container">
+            <h3>Đánh giá game</h3>
+            <div class="rating-stars">
+              <input type="radio" id="star5" name="rating" value="5" />
+              <label for="star5">★</label>
+              <input type="radio" id="star4" name="rating" value="4" />
+              <label for="star4">★</label>
+              <input type="radio" id="star3" name="rating" value="3" />
+              <label for="star3">★</label>
+              <input type="radio" id="star2" name="rating" value="2" />
+              <label for="star2">★</label>
+              <input type="radio" id="star1" name="rating" value="1" />
+              <label for="star1">★</label>
+            </div>
+            <div class="rating-info">
+              <span class="rating-average">0.0</span> / 5.0
+              <span class="rating-count">(0 đánh giá)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+          <h2>Bình luận</h2>
+          <div id="commentForm" class="comment-form">
+            <textarea
+              id="commentInput"
+              class="comment-input"
+              placeholder="Viết bình luận của bạn..."
+            ></textarea>
+            <button id="submitComment" class="submit-comment">
+              Gửi bình luận
+            </button>
+          </div>
+          <div id="commentsList" class="comments-list">
+            <!-- Comments will be loaded here -->
+          </div>
+        </div>
+      </div>
     </main>
     <div id="footer"></div>
 
     <script type="module">
-        import { games } from './js/modules/games.js';
-        import { ui } from './js/modules/ui.js';
-        import { auth } from './js/modules/auth.js';
-        import { comments } from './js/modules/comments.js';
+      import { games } from "./js/modules/games.js";
+      import { ui } from "./js/modules/ui.js";
+      import { auth } from "./js/modules/auth.js";
+      import { comments } from "./js/modules/comments.js";
+      import { rating } from "./js/modules/rating.js";
 
-        // Load header and footer first
-        async function loadComponents() {
-            try {
-                // Load header
-                const headerResponse = await fetch('./reuse_model/head.html');
-                const headerHtml = await headerResponse.text();
-                document.getElementById('header').innerHTML = headerHtml;
-                
-                // Load footer
-                const footerResponse = await fetch('./reuse_model/footer.html');
-                const footerHtml = await footerResponse.text();
-                document.getElementById('footer').innerHTML = footerHtml;
+      // Load header and footer first
+      async function loadComponents() {
+        try {
+          // Load header
+          const headerResponse = await fetch("./reuse_model/head.html");
+          const headerHtml = await headerResponse.text();
+          document.getElementById("header").innerHTML = headerHtml;
 
-                // Load header script
-                const script = document.createElement('script');
-                script.src = './js/header.js';
-                script.onload = () => {
-                    if (typeof window.initHeader === 'function') {
-                        window.initHeader();
-                    } else {
-                        console.error('initHeader function not found!');
-                    }
-                };
-                document.head.appendChild(script)
+          // Load footer
+          const footerResponse = await fetch("./reuse_model/footer.html");
+          const footerHtml = await footerResponse.text();
+          document.getElementById("footer").innerHTML = footerHtml;
 
-                // Show content when components are loaded
-                document.body.classList.add('loaded');
-                document.getElementById('header').classList.add('loaded');
-                document.querySelector('main').classList.add('loaded');
-                document.getElementById('footer').classList.add('loaded');
-                
-                // Hide loading screen
-                const loadingScreen = document.getElementById('loading-screen');
-                loadingScreen.classList.add('fade-out');
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 300);
-            } catch (error) {
-                console.error('Error loading components:', error);
+          // Load header script
+          const script = document.createElement("script");
+          script.src = "./js/header.js";
+          script.onload = () => {
+            if (typeof window.initHeader === "function") {
+              window.initHeader();
+            } else {
+              console.error("initHeader function not found!");
             }
+          };
+          document.head.appendChild(script);
+
+          // Show content when components are loaded
+          document.body.classList.add("loaded");
+          document.getElementById("header").classList.add("loaded");
+          document.querySelector("main").classList.add("loaded");
+          document.getElementById("footer").classList.add("loaded");
+
+          // Hide loading screen
+          const loadingScreen = document.getElementById("loading-screen");
+          loadingScreen.classList.add("fade-out");
+          setTimeout(() => {
+            loadingScreen.style.display = "none";
+          }, 300);
+        } catch (error) {
+          console.error("Error loading components:", error);
         }
+      }
 
-        // Start loading components
-        loadComponents();
+      // Start loading components
+      loadComponents();
 
-        // Load game
-        async function loadGame() {
-            try {
-                // Get game ID from URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const gameId = urlParams.get('id');
+      // Load game
+      async function loadGame() {
+        try {
+          // Get game ID from URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const gameId = urlParams.get("id");
 
-                if (!gameId) {
-                    throw new Error('Không tìm thấy ID game');
-                }
+          if (!gameId) {
+            throw new Error("Không tìm thấy ID game");
+          }
 
-                // Fetch game data
-                const game = await games.getGameById(gameId);
-                
-                // Update page title
-                document.title = `${game.title} - HUST Online Games`;
-                
-                // Update game title
-                document.querySelector('.game-title').textContent = game.title;
+          // Fetch game data
+          const game = await games.getGameById(gameId);
 
-                // Create iframe
-                const gameFrame = document.getElementById('gameFrame');
-                gameFrame.innerHTML = ''; // Clear loading message
-                
-                const iframe = document.createElement('iframe');
-                iframe.src = game.iframe_url;
-                iframe.className = 'game-frame';
-                iframe.allow = 'fullscreen';
-                iframe.allowFullscreen = true;
-                
-                gameFrame.appendChild(iframe);
+          // Update page title
+          document.title = `${game.title} - HUST Online Games`;
 
-                // Load comments
-                loadComments(gameId);
+          // Update game title
+          document.querySelector(".game-title").textContent = game.title;
 
-            } catch (error) {
-                console.error('Error loading game:', error);
-                document.getElementById('gameFrame').innerHTML = `
+          // Create iframe
+          const gameFrame = document.getElementById("gameFrame");
+          gameFrame.innerHTML = ""; // Clear loading message
+
+          const iframe = document.createElement("iframe");
+          iframe.src = game.iframe_url;
+          iframe.className = "game-frame";
+          iframe.allow = "fullscreen";
+          iframe.allowFullscreen = true;
+
+          gameFrame.appendChild(iframe);
+
+          // Load comments and ratings
+          loadComments(gameId);
+          loadRating(gameId);
+        } catch (error) {
+          console.error("Error loading game:", error);
+          document.getElementById("gameFrame").innerHTML = `
                     <div class="error-message">
-                        ${error.message || 'Không thể tải game. Vui lòng thử lại sau.'}
+                        ${
+                          error.message ||
+                          "Không thể tải game. Vui lòng thử lại sau."
+                        }
                     </div>
                 `;
-            }
         }
+      }
 
-        // Load comments
-        async function loadComments(gameId) {
-            try {
-                const commentsList = await comments.getComments(gameId);
-                const commentsListElement = document.getElementById('commentsList');
-                
-                if (commentsList.length === 0) {
-                    commentsListElement.innerHTML = `
+      // Load rating
+      async function loadRating(gameId) {
+        try {
+          const ratingData = await rating.getRating(gameId);
+          const ratingAverage = document.querySelector(".rating-average");
+          const ratingCount = document.querySelector(".rating-count");
+
+          ratingAverage.textContent = ratingData.average.toFixed(1);
+          ratingCount.textContent = `(${ratingData.count} đánh giá)`;
+
+          // If user has rated, check their rating
+          if (ratingData.userRating) {
+            const userRatingInput = document.querySelector(
+              `input[name="rating"][value="${ratingData.userRating.score}"]`
+            );
+            if (userRatingInput) {
+              userRatingInput.checked = true;
+            }
+          }
+        } catch (error) {
+          console.error("Error loading rating:", error);
+          ui.showMessage("Không thể tải đánh giá", "error");
+        }
+      }
+
+      // Handle rating submission
+      document.querySelectorAll('input[name="rating"]').forEach((input) => {
+        input.addEventListener("change", async (e) => {
+          try {
+            const isAuthenticated = await auth.checkAuth();
+            if (!isAuthenticated) {
+              ui.showMessage("Vui lòng đăng nhập để đánh giá", "error");
+              return;
+            }
+
+            const score = parseInt(e.target.value);
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameId = urlParams.get("id");
+
+            await rating.addRating(gameId, score);
+            loadRating(gameId);
+            ui.showMessage("Cảm ơn bạn đã đánh giá!", "success");
+          } catch (error) {
+            console.error("Error submitting rating:", error);
+            ui.showMessage("Không thể gửi đánh giá", "error");
+          }
+        });
+      });
+
+      // Load comments
+      async function loadComments(gameId) {
+        try {
+          const commentsList = await comments.getComments(gameId);
+          const commentsListElement = document.getElementById("commentsList");
+
+          if (commentsList.length === 0) {
+            commentsListElement.innerHTML = `
                         <div class="no-comments">
                             <p>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
                         </div>
                     `;
-                    return;
-                }
+            return;
+          }
 
-                commentsListElement.innerHTML = commentsList.map(comment => `
+          commentsListElement.innerHTML = commentsList
+            .map(
+              (comment) => `
                     <div class="comment">
                         <div class="comment-header">
                             <div class="comment-user">
-                                <div class="user-avatar">${comment.User.username.charAt(0).toUpperCase()}</div>
-                                <span class="user-name">${comment.User.username}</span>
+                                <div class="user-avatar">${comment.User.username
+                                  .charAt(0)
+                                  .toUpperCase()}</div>
+                                <span class="user-name">${
+                                  comment.User.username
+                                }</span>
                             </div>
-                            <span class="comment-date">${new Date(comment.createdAt).toLocaleString('vi-VN', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
+                            <span class="comment-date">${new Date(
+                              comment.createdAt
+                            ).toLocaleString("vi-VN", {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
                             })}</span>
                         </div>
                         <div class="comment-content">${comment.content}</div>
-                        ${auth.checkAuth() && JSON.parse(localStorage.getItem('user')).username === comment.User.username ? `
+                        ${
+                          auth.checkAuth() &&
+                          JSON.parse(localStorage.getItem("user")).username ===
+                            comment.User.username
+                            ? `
                             <div class="comment-actions">
                                 <span class="comment-action delete" onclick="deleteComment(${comment.id})">Xóa</span>
                             </div>
-                        ` : ''}
+                        `
+                            : ""
+                        }
                     </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading comments:', error);
-                ui.showMessage('Không thể tải bình luận', 'error');
+                `
+            )
+            .join("");
+        } catch (error) {
+          console.error("Error loading comments:", error);
+          ui.showMessage("Không thể tải bình luận", "error");
+        }
+      }
+
+      // Handle comment submission
+      document
+        .getElementById("submitComment")
+        .addEventListener("click", async () => {
+          try {
+            const isAuthenticated = await auth.checkAuth();
+            if (!isAuthenticated) {
+              ui.showMessage("Vui lòng đăng nhập để bình luận", "error");
+              return;
             }
+
+            const commentInput = document.getElementById("commentInput");
+            const content = commentInput.value.trim();
+
+            if (!content) {
+              ui.showMessage("Vui lòng nhập nội dung bình luận", "error");
+              return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameId = urlParams.get("id");
+            await comments.addComment(gameId, content);
+            commentInput.value = "";
+            loadComments(gameId);
+            ui.showMessage("Bình luận đã được thêm thành công", "success");
+          } catch (error) {
+            console.error("Error adding comment:", error);
+            ui.showMessage("Không thể thêm bình luận", "error");
+          }
+        });
+
+      // Handle fullscreen
+      document.getElementById("fullscreenBtn").addEventListener("click", () => {
+        const gameFrame = document.getElementById("gameFrame");
+        if (gameFrame.requestFullscreen) {
+          gameFrame.requestFullscreen();
+        } else if (gameFrame.webkitRequestFullscreen) {
+          gameFrame.webkitRequestFullscreen();
+        } else if (gameFrame.msRequestFullscreen) {
+          gameFrame.msRequestFullscreen();
+        }
+      });
+
+      // Handle comment deletion
+      window.deleteComment = async function (commentId) {
+        if (!confirm("Bạn có chắc chắn muốn xóa bình luận này?")) {
+          return;
         }
 
-        // Handle comment submission
-        document.getElementById('submitComment').addEventListener('click', async () => {
-            try {
-                const isAuthenticated = await auth.checkAuth();
-                if (!isAuthenticated) {
-                    ui.showMessage('Vui lòng đăng nhập để bình luận', 'error');
-                    return;
-                }
+        try {
+          await comments.deleteComment(commentId);
+          const urlParams = new URLSearchParams(window.location.search);
+          const gameId = urlParams.get("id");
+          loadComments(gameId);
+          ui.showMessage("Bình luận đã được xóa thành công", "success");
+        } catch (error) {
+          console.error("Error deleting comment:", error);
+          ui.showMessage("Không thể xóa bình luận", "error");
+        }
+      };
 
-                const commentInput = document.getElementById('commentInput');
-                const content = commentInput.value.trim();
-
-                if (!content) {
-                    ui.showMessage('Vui lòng nhập nội dung bình luận', 'error');
-                    return;
-                }
-
-                const urlParams = new URLSearchParams(window.location.search);
-                const gameId = urlParams.get('id');
-                await comments.addComment(gameId, content);
-                commentInput.value = '';
-                loadComments(gameId);
-                ui.showMessage('Bình luận đã được thêm thành công', 'success');
-            } catch (error) {
-                console.error('Error adding comment:', error);
-                ui.showMessage('Không thể thêm bình luận', 'error');
-            }
-        });
-
-        // Handle fullscreen
-        document.getElementById('fullscreenBtn').addEventListener('click', () => {
-            const gameFrame = document.getElementById('gameFrame');
-            if (gameFrame.requestFullscreen) {
-                gameFrame.requestFullscreen();
-            } else if (gameFrame.webkitRequestFullscreen) {
-                gameFrame.webkitRequestFullscreen();
-            } else if (gameFrame.msRequestFullscreen) {
-                gameFrame.msRequestFullscreen();
-            }
-        });
-
-        // Handle comment deletion
-        window.deleteComment = async function(commentId) {
-            if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
-                return;
-            }
-
-            try {
-                await comments.deleteComment(commentId);
-                const urlParams = new URLSearchParams(window.location.search);
-                const gameId = urlParams.get('id');
-                loadComments(gameId);
-                ui.showMessage('Bình luận đã được xóa thành công', 'success');
-            } catch (error) {
-                console.error('Error deleting comment:', error);
-                ui.showMessage('Không thể xóa bình luận', 'error');
-            }
-        };
-
-        // Initialize
-        loadGame();
+      // Initialize
+      loadGame();
     </script>
-</body>
-
+  </body>
 </html>
